@@ -1,4 +1,4 @@
-# EFT Sherpa OS v42 (PvE Mode)
+# EFT Sherpa OS v0.42 (PvE Mode)
 **究極のタルコフ・タクティカル・コンパニオンツール**
 
 <!-- ここに公開URLへのリンクボタンを配置 -->
