@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>EFT Sherpa OS v0.58</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tarkov: {
+                            bg: '#0f0f0f',
+                            panel: '#151515',
+                            border: '#333333',
+                            text: '#cccccc',
+                            accent: '#9a8c7d', 
+                            accentHover: '#b09b75',
+                            green: '#4ade80',
+                            red: '#ef4444',
+                            orange: '#f97316',
+                            gold: '#ffd700',
+                            blue: '#4a6fa5'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { background-color: #050505; color: #d4d4d4; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+        
+        /* CRT Overlay */
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .glass-panel { background: rgba(26, 26, 26, 0.95); border: 1px solid #333; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .loader { border: 2px solid #333; border-top: 2px solid #9a8c7d; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .mobile-nav-active { color: #9a8c7d; border-top: 2px solid #9a8c7d; background: linear-gradient(to bottom, rgba(154, 140, 125, 0.1), transparent); }
+
+        .req-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; transition: all 0.3s; }
+        .req-quest { background: rgba(234, 179, 8, 0.2); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4); }
+        .req-hideout { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .req-barter { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
+        .req-craft { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        .req-done { background: rgba(60, 60, 60, 0.2); color: #666; border: 1px solid rgba(60, 60, 60, 0.4); opacity: 0.6; }
+        
+        .profit-pos { color: #4ade80; }
+        .profit-neg { color: #ef4444; }
+        
+        .detail-section { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, margin-top 0.3s; }
+        .market-card.expanded .detail-section { max-height: 2000px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #444; }
+        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .market-nav-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; font-size: 0.8rem; background: transparent; }
+        .market-nav-tab.active { color: #9a8c7d; border-bottom-color: #9a8c7d; background: linear-gradient(to top, rgba(154, 140, 125, 0.1), transparent); }
+        
+        .hideout-level-btn { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; transition: all 0.2s; }
+        .hideout-level-btn:hover:not(:disabled) { background: #333; color: #fff; }
+
+        .filter-toggle-btn { font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .filter-toggle-btn.active { background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d; }
+        
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .wishlist-star.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden relative text-sm md:text-base">
+    
+    <div class="crt-overlay fixed inset-0 h-full w-full pointer-events-none"></div>
+
+    <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
+        <div class="flex items-center gap-2 md:gap-3">
+            <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
+            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.58 <span class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top">PvE</span></h1>
+        </div>
+        
+        <div class="flex items-center gap-2 md:gap-4">
+            <button id="sync-btn" class="text-xs flex items-center gap-2 bg-tarkov-border hover:bg-gray-700 transition px-3 py-2 rounded text-gray-300 border border-tarkov-border active:scale-95">
+                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">LIVE SYNC</span><span class="md:hidden">SYNC</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        <nav class="w-64 bg-tarkov-panel border-r border-tarkov-border flex flex-col z-30 hidden md:flex">
+            <div class="p-4 border-b border-tarkov-border">
+                <div class="text-xs text-gray-500 uppercase font-bold mb-2">Command</div>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 bg-tarkov-border text-tarkov-accent border-l-2 border-tarkov-accent font-medium" data-target="dashboard">
+                    <i class="fa-solid fa-chart-line w-6 text-center"></i> Dashboard
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="market">
+                    <i class="fa-solid fa-shop w-6 text-center"></i> Market & Craft
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="wishlist">
+                    <i class="fa-solid fa-star w-6 text-center"></i> Wishlist
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="tasks">
+                    <i class="fa-solid fa-list-check w-6 text-center"></i> Task Database
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="hideout">
+                    <i class="fa-solid fa-dungeon w-6 text-center"></i> Hideout Manager
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="gunsmith">
+                    <i class="fa-solid fa-gun w-6 text-center"></i> Gunsmith
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="ammo">
+                    <i class="fa-solid fa-bullseye w-6 text-center"></i> Ballistics Chart
+                </button>
+            </div>
+            <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">INTEGRATED SYSTEM v0.58</div>
+        </nav>
+
+        <main class="flex-1 bg-tarkov-bg overflow-y-auto p-4 md:p-6 pb-32 md:pb-6 relative scroll-smooth" id="main-content">
+            <div id="view-dashboard" class="space-y-4 md:space-y-6 animate-fade-in">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">DB Status</div>
+                        <div class="text-sm md:text-base font-bold text-gray-500 mt-1" id="dash-status">Offline</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Live Tasks</div>
+                        <div class="text-xl md:text-2xl font-bold text-white mt-1" id="dash-task-count">0</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Market Intel</div>
+                        <div class="text-xl md:text-2xl font-bold text-tarkov-blue mt-1" id="dash-market-count">0</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Hideout</div>
+                        <div class="text-xl md:text-2xl font-bold text-tarkov-green mt-1" id="dash-hideout-count">0%</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-4 md:p-6 rounded border border-dashed border-gray-700 text-center">
+                    <p class="text-gray-500">右上または下記の同期ボタンを押してデータを読み込んでください。</p>
+                    <button class="mt-4 bg-tarkov-accent text-black px-6 py-2 rounded font-bold hover:bg-tarkov-accentHover" onclick="app.fetchLiveStats()">INITIAL SYNC</button>
+                </div>
+            </div>
+
+            <div id="view-market" class="hidden space-y-4 animate-fade-in">
+                <div class="glass-panel rounded overflow-hidden">
+                    <div class="flex border-b border-gray-700 bg-black/20">
+                        <button class="market-nav-tab active" data-tab="items">MARKET</button>
+                        <button class="market-nav-tab" data-tab="crafts">CRAFTS</button>
+                    </div>
+                    <div class="p-4" id="subview-items">
+                        <input type="text" id="market-search" placeholder="Search Item..." class="w-full bg-black/40 border border-gray-600 p-2 rounded text-white mb-4 outline-none">
+                        <div id="market-grid" class="space-y-2"></div>
+                    </div>
+                    <div class="p-4 hidden" id="subview-crafts">
+                        <div id="crafts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-wishlist" class="hidden animate-fade-in"><div id="wishlist-grid" class="space-y-2"></div></div>
+            <div id="view-tasks" class="hidden animate-fade-in"><div id="task-list" class="space-y-2"></div></div>
+            <div id="view-hideout" class="hidden animate-fade-in"><div id="hideout-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div></div>
+            <div id="view-ammo" class="hidden animate-fade-in"><div class="glass-panel p-4 rounded"><canvas id="ammoChartCanvas"></canvas></div></div>
+            <div id="view-gunsmith" class="hidden animate-fade-in">
+                <select id="gs-weapon" class="w-full bg-tarkov-panel border border-tarkov-border p-2 rounded mb-4"></select>
+                <div id="gs-builder-area"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-tarkov-panel border border-tarkov-accent text-white px-6 py-3 rounded-full opacity-0 transition duration-300 z-[110] pointer-events-none">
+        <span id="toast-msg"></span>
+    </div>
+
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-tarkov-border flex justify-around h-14 pb-safe z-50">
+        <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center text-gray-500 mobile-nav-active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i><span class="text-[9px]">Dash</span></button>
+        <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center text-gray-500" data-target="market"><i class="fa-solid fa-shop"></i><span class="text-[9px]">Market</span></button>
+        <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center text-gray-500" data-target="tasks"><i class="fa-solid fa-list-check"></i><span class="text-[9px]">Tasks</span></button>
+        <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center text-gray-500" data-target="ammo"><i class="fa-solid fa-bullseye"></i><span class="text-[9px]">Ammo</span></button>
+    </nav>
+
+    <script>
+        // ロジック（提供されたファイルをベースに最小構成で再構築）
+        const app = {
+            data: { tasks: [], marketItems: [], wishlist: new Set(), userHideoutLevels: {} },
+            async fetchApiData(query) {
+                const res = await fetch('https://api.tarkov.dev/graphql', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const json = await res.json();
+                return json.data;
+            },
+            async fetchLiveStats() {
+                this.showToast("Syncing...");
+                const data = await this.fetchApiData(`{ 
+                    tasks(lang: ja) { id name trader { name } map { name } }
+                    items(gameMode: pve, types: [barter, ammo, keys], lang: ja) { id name avg24hPrice iconLink gridImageLink }
+                }`);
+                if(data) {
+                    this.data.tasks = data.tasks;
+                    this.data.marketItems = data.items.filter(i => i.avg24hPrice > 0);
+                    document.getElementById('dash-status').innerHTML = '<span class="text-green-400">ONLINE</span>';
+                    document.getElementById('dash-task-count').innerText = data.tasks.length;
+                    document.getElementById('dash-market-count').innerText = this.data.marketItems.length;
+                    this.renderMarket();
+                    this.showToast("Sync Complete");
+                }
+            },
+            renderMarket() {
+                const grid = document.getElementById('market-grid');
+                grid.innerHTML = this.data.marketItems.slice(0, 50).map(item => `
+                    <div class="tarkov-panel p-3 border border-tarkov-border rounded flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.iconLink}" class="w-8 h-8 bg-black rounded">
+                            <span class="font-bold text-tarkov-gold">${item.name}</span>
+                        </div>
+                        <span class="font-mono text-tarkov-blue">₽${item.avg24hPrice.toLocaleString()}</span>
+                    </div>
+                `).join('');
+            },
+            switchTab(id) {
+                document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
+                document.getElementById(`view-${id}`).classList.remove('hidden');
+                document.querySelectorAll('.nav-btn-mobile').forEach(b => b.classList.toggle('mobile-nav-active', b.dataset.target === id));
+            },
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                document.getElementById('toast-msg').innerText = msg;
+                t.classList.remove('opacity-0');
+                setTimeout(() => t.classList.add('opacity-0'), 2000);
+            }
+        };
+
+        document.querySelectorAll('[data-target]').forEach(b => b.addEventListener('click', e => app.switchTab(e.currentTarget.dataset.target)));
+        // 初期状態
+        app.switchTab('dashboard');
+    </script>
+</body>
+</html>
