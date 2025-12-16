@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EFT Sherpa OS v0.57</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -23,8 +24,7 @@
                             red: '#ef4444',
                             orange: '#f97316',
                             gold: '#ffd700',
-                            blue: '#4a6fa5',
-                            purple: '#c084fc'
+                            blue: '#4a6fa5'
                         }
                     },
                     fontFamily: {
@@ -36,7 +36,11 @@
         }
     </script>
     
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body { background-color: #050505; color: #d4d4d4; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -75,7 +79,7 @@
         .req-barter { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
         .req-craft { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
         
-        /* Inactive/Completed States */
+        /* Phase 3: Inactive/Completed States */
         .req-done { background: rgba(60, 60, 60, 0.2); color: #666; border: 1px solid rgba(60, 60, 60, 0.4); opacity: 0.6; }
         .req-done-text { text-decoration: line-through; opacity: 0.6; }
         
@@ -99,7 +103,7 @@
         .hideout-level-btn:hover:not(:disabled) { background: #333; color: #fff; }
         .hideout-level-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Filter Checkbox Button Style */
+        /* Filter Checkbox Button Style (Phase 4) */
         .filter-toggle-btn {
             font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
         }
@@ -121,6 +125,7 @@
     
     <div class="crt-overlay fixed inset-0 h-full w-full pointer-events-none"></div>
 
+    <!-- Header -->
     <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
         <div class="flex items-center gap-2 md:gap-3">
             <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
@@ -134,8 +139,10 @@
         </div>
     </header>
 
+    <!-- Main Layout -->
     <div class="flex-1 flex overflow-hidden relative">
         
+        <!-- Sidebar (PC) -->
         <nav class="w-64 bg-tarkov-panel border-r border-tarkov-border flex flex-col z-30 hidden md:flex">
             <div class="p-4 border-b border-tarkov-border">
                 <div class="text-xs text-gray-500 uppercase font-bold mb-2">Command</div>
@@ -158,19 +165,22 @@
                     <i class="fa-solid fa-gun w-6 text-center"></i> Gunsmith
                 </button>
                 <button onclick="app.switchTab('ammo')" class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="ammo">
-                    <i class="fa-solid fa-bullseye w-6 text-center"></i> Ammo Table
+                    <i class="fa-solid fa-bullseye w-6 text-center"></i> Ballistics Chart
                 </button>
             </div>
             
             <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">
                 INTEGRATED SYSTEM<br>
-                v0.57 (BARTER INFO)
+                v0.57 (BALLISTICS)
             </div>
         </nav>
 
+        <!-- Main Content -->
         <main class="flex-1 bg-tarkov-bg overflow-y-auto p-4 md:p-6 pb-32 md:pb-6 relative scroll-smooth" id="main-content">
             
+            <!-- VIEW: DASHBOARD -->
             <div id="view-dashboard" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- Stats -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                     <div class="glass-panel p-3 md:p-4 rounded">
                         <div class="text-gray-400 text-[10px] md:text-xs uppercase">DB Status</div>
@@ -190,6 +200,7 @@
                     </div>
                 </div>
 
+                <!-- Shortcuts -->
                 <div class="glass-panel p-4 md:p-6 rounded border border-dashed border-gray-700">
                     <h2 class="text-lg md:text-xl text-white mb-2"><i class="fa-solid fa-rocket mr-2"></i>Quick Access</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -200,17 +211,18 @@
                                 <div class="text-xs text-gray-500">市場価格・クラフト利益・バーター逆引き</div>
                             </div>
                         </button>
-                        <button onclick="app.switchTab('wishlist')" class="flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-tarkov-gold transition text-left">
-                            <div class="bg-tarkov-gold/20 p-2 rounded text-tarkov-gold"><i class="fa-solid fa-star"></i></div>
+                        <button onclick="app.switchTab('ammo')" class="flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-red-500 transition text-left">
+                            <div class="bg-red-900/20 p-2 rounded text-red-500"><i class="fa-solid fa-bullseye"></i></div>
                             <div>
-                                <div class="text-sm font-bold text-gray-200">Wishlist</div>
-                                <div class="text-xs text-gray-500">欲しいものリスト・価格監視</div>
+                                <div class="text-sm font-bold text-gray-200">Ballistics Chart</div>
+                                <div class="text-xs text-gray-500">弾薬性能グラフ・貫通力分析</div>
                             </div>
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- VIEW: WISHLIST -->
             <div id="view-wishlist" class="hidden space-y-4 animate-fade-in">
                 <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg sticky top-0 z-20">
                     <div class="flex justify-between items-center">
@@ -224,6 +236,7 @@
                 </div>
             </div>
 
+            <!-- VIEW: MARKET MONITOR -->
             <div id="view-market" class="hidden space-y-4 animate-fade-in">
                 <div class="glass-panel rounded overflow-hidden">
                     <div class="flex border-b border-gray-700 bg-black/20">
@@ -271,6 +284,7 @@
                         </div>
                         <div id="subview-crafts" class="hidden">
                             <div class="mb-4 space-y-3">
+                                <!-- UPDATED: CRAFT SEARCH & FILTERS -->
                                 <div class="w-full relative">
                                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
                                     <input type="text" id="craft-search" placeholder="Search Recipe (Reward or Ingredient)..." class="w-full bg-black/40 border border-gray-600 pl-10 pr-4 py-2 rounded text-sm text-white focus:border-tarkov-blue outline-none">
@@ -310,6 +324,7 @@
                 </div>
             </div>
 
+            <!-- VIEW: TASKS -->
             <div id="view-tasks" class="hidden space-y-4 animate-fade-in">
                 <div class="flex flex-col gap-3 mb-4 sticky top-0 bg-tarkov-bg pt-2 pb-4 z-20 border-b border-gray-800">
                     <input type="text" id="task-search" placeholder="タスク名、報酬、詳細で検索..." class="w-full bg-tarkov-panel border border-tarkov-border px-4 py-3 rounded text-sm text-white focus:border-tarkov-accent focus:outline-none shadow-sm">
@@ -346,6 +361,7 @@
                 </div>
             </div>
 
+            <!-- VIEW: GUNSMITH -->
             <div id="view-gunsmith" class="hidden space-y-4 animate-fade-in">
                 <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg">
                     <h2 class="text-sm font-mono text-tarkov-accent mb-2 flex items-center gap-2">
@@ -401,6 +417,7 @@
                 </div>
             </div>
 
+            <!-- VIEW: HIDEOUT -->
             <div id="view-hideout" class="hidden space-y-4 animate-fade-in">
                 <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg sticky top-0 z-20">
                     <div class="flex justify-between items-center mb-2">
@@ -418,21 +435,42 @@
                 </div>
             </div>
 
-            <div id="view-ammo" class="hidden space-y-4 animate-fade-in">
-                <div class="glass-panel rounded overflow-hidden flex flex-col h-full">
-                    <div class="bg-tarkov-panel px-4 py-3 border-b border-tarkov-border sticky top-0 z-10 flex justify-between items-center">
-                        <h3 class="text-sm font-bold text-gray-200">Meta Ammo Table</h3>
-                        <span class="text-[10px] bg-red-900/30 text-red-400 px-2 py-0.5 rounded">High Pen First</span>
+            <!-- VIEW: AMMO (UPDATED) -->
+            <div id="view-ammo" class="hidden space-y-4 animate-fade-in flex flex-col h-full">
+                <!-- Ammo Control Panel -->
+                <div class="bg-tarkov-panel p-3 border border-tarkov-border rounded shrink-0">
+                    <h3 class="text-sm font-bold text-gray-200 mb-2 flex justify-between items-center">
+                        <span><i class="fa-solid fa-bullseye mr-2 text-red-500"></i>BALLISTICS CHART</span>
+                        <div class="flex bg-black/40 rounded border border-gray-800 p-0.5">
+                            <button onclick="app.switchAmmoView('chart')" id="av-chart" class="px-3 py-1 text-xs rounded transition bg-tarkov-border text-white">CHART</button>
+                            <button onclick="app.switchAmmoView('list')" id="av-list" class="px-3 py-1 text-xs rounded transition text-gray-500 hover:text-white">LIST</button>
+                        </div>
+                    </h3>
+                    
+                    <!-- Caliber Filters -->
+                    <div class="w-full overflow-x-auto scrollbar-hide">
+                        <div class="flex gap-2 min-w-max pb-1" id="ammo-filters">
+                            <button class="tarkov-btn active px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-cal="all">ALL</button>
+                            <!-- Calibers will be injected here -->
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
+                </div>
+
+                <!-- Chart Container -->
+                <div id="ammo-chart-container" class="glass-panel p-2 rounded flex-1 min-h-[300px] relative">
+                    <canvas id="ammoChartCanvas"></canvas>
+                </div>
+
+                <!-- List Container (Hidden by default) -->
+                <div id="ammo-list-container" class="glass-panel rounded overflow-hidden flex-1 hidden flex flex-col">
+                    <div class="overflow-x-auto flex-1">
                         <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
-                            <thead class="text-xs text-gray-500 uppercase bg-black/40">
+                            <thead class="text-xs text-gray-500 uppercase bg-black/40 sticky top-0">
                                 <tr>
-                                    <th class="px-4 py-3">Caliber</th>
                                     <th class="px-4 py-3">Name</th>
                                     <th class="px-4 py-3">Dmg</th>
                                     <th class="px-4 py-3">Pen</th>
-                                    <th class="px-4 py-3">Armor Dmg</th>
+                                    <th class="px-4 py-3">A.Dmg</th>
                                 </tr>
                             </thead>
                             <tbody id="ammo-table-body" class="divide-y divide-gray-800"></tbody>
@@ -444,6 +482,7 @@
         </main>
     </div>
     
+    <!-- Mobile Bottom Navigation -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-tarkov-border z-[100] pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.5)]">
         <div class="flex justify-around items-stretch h-14">
             <button onclick="app.switchTab('dashboard')" class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500 mobile-nav-active" data-target="dashboard">
@@ -462,11 +501,12 @@
                 <i class="fa-solid fa-dungeon text-sm"></i><span class="text-[9px]">Hide</span>
             </button>
             <button onclick="app.switchTab('ammo')" class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="ammo">
-                <i class="fa-solid fa-bullseye text-sm"></i><span class="text-[9px]">Ammo</span>
+                <i class="fa-solid fa-bullseye text-sm"></i><span class="text-[9px]">Chart</span>
             </button>
         </div>
     </nav>
 
+    <!-- Toast -->
     <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-tarkov-panel border border-tarkov-accent text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition duration-300 z-[110] flex items-center gap-3 w-max max-w-[90%] pointer-events-none">
         <i class="fa-solid fa-info-circle text-tarkov-accent"></i><span id="toast-msg" class="text-sm font-medium">Notification</span>
     </div>
@@ -487,7 +527,7 @@
                 hideoutMap: new Map(),
                 acquisitionMap: new Map(),
                 crafts: [],
-                craftMap: new Map(), 
+                craftMap: new Map(),
                 hideoutStationsRaw: [],
                 userHideoutLevels: {},
                 wishlist: new Set(),
@@ -497,9 +537,17 @@
                     tab: 'items',
                     filters: { task: false, hideout: false, barter: false, craft: false },
                     craftFilters: { task: false, hideout: false, barter: false, craft: false }
+                },
+                // Updated: Ammo Config
+                ammoConfig: {
+                    view: 'chart',
+                    caliber: 'all'
                 }
             },
             
+            // Chart.js Instance
+            ammoChart: null,
+
             consts: {
                 typeMapping: { 'barter': ['barter'], 'keys': ['keys'], 'provisions': ['provisions'], 'ammo': ['ammo'], 'mods': ['mods', 'suppressor'], 'container': ['container'], 'wear': ['armor', 'helmet', 'glasses', 'headphones', 'rig', 'backpack'] },
                 globalTypes: ['barter', 'keys', 'ammo', 'provisions', 'mods', 'suppressor', 'container', 'armor', 'helmet', 'glasses', 'headphones', 'rig', 'backpack', 'gun'],
@@ -538,7 +586,7 @@
             async runInit() {
                 this.setupListeners();
                 this.loadHideoutStatus();
-                this.loadWishlist(); 
+                this.loadWishlist();
                 this.safeUpdateText('market-result-count', "Waiting for Sync...");
                 this.fetchLiveStats();
                 this.fetchWeaponData();
@@ -547,7 +595,6 @@
             async fetchApiData(query) {
                 try {
                     const cleanQuery = query.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-
                     const res = await fetch('https://api.tarkov.dev/graphql', {
                         method: 'POST', 
                         headers: { 
@@ -557,10 +604,7 @@
                         body: JSON.stringify({ query: cleanQuery })
                     });
                     
-                    if (!res.ok) {
-                        throw new Error(`HTTP Status ${res.status}`);
-                    }
-
+                    if (!res.ok) throw new Error(`HTTP Status ${res.status}`);
                     const json = await res.json();
                     if (json.errors) {
                         console.error("API Errors:", json.errors);
@@ -595,19 +639,19 @@
                             startRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } }
                             finishRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } }
                         }
-                        ammo(limit: 100, lang: en) { item { name } caliber damage penetrationPower armorDamage }
+                        ammo(limit: 200, lang: en) { item { name shortName } caliber damage penetrationPower armorDamage }
                     }`;
                     
                     const taskData = await this.fetchApiData(taskQuery);
                     if (taskData) {
-                        this.loadTaskCompletionStatus(); 
+                        this.loadTaskCompletionStatus();
                         const savedStatus = JSON.parse(localStorage.getItem('taskCompletionStatus') || '{}');
                         
                         this.data.tasks = taskData.tasks.map(t => ({...t, completed: !!savedStatus[t.id]}));
                         this.data.ammo = taskData.ammo.sort((a, b) => b.penetrationPower - a.penetrationPower);
                         this.processTaskMetaData();
                         this.renderTasks();
-                        this.renderAmmo();
+                        this.renderAmmo(); // Renders Chart/List
                         this.safeUpdateText('dash-task-count', this.data.tasks.length);
                     }
 
@@ -651,13 +695,12 @@
                     }));
                 }
 
-                // UPDATED QUERY: Fetch requiredItems for bartersFor to get count
                 const marketQuery = `{
                     items(gameMode: pve, limit: 3500, offset: 0, types: [${this.consts.globalTypes.join(', ')}], lang: ja) {
                         id name shortName avg24hPrice low24hPrice high24hPrice changeLast48hPercent wikiLink types iconLink gridImageLink description
                         sellFor { price source }
                         usedInTasks { id name trader { name } wikiLink }
-                        bartersFor { trader { name } level requiredItems { count item { id } } rewardItems { item { name iconLink } } }
+                        bartersFor { trader { name } level rewardItems { item { name } } }
                     }
                 }`;
                 const marketRes = await this.fetchApiData(marketQuery);
@@ -677,17 +720,15 @@
                 }`;
                 const craftRes = await this.fetchApiData(craftQuery);
                 if (craftRes) {
-                    this.data.craftMap.clear(); 
+                    this.data.craftMap.clear();
                     this.data.crafts = craftRes.crafts.map(c => {
                         const rev = c.rewardItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
                         const cost = c.requiredItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
                         const profit = (rev * 0.9) - cost;
-                        
                         c.requiredItems.forEach(req => {
                             if(!this.data.craftMap.has(req.item.id)) this.data.craftMap.set(req.item.id, []);
                             this.data.craftMap.get(req.item.id).push({ type: 'ingredient', profit, station: c.station.name, level: c.level, products: c.rewardItems });
                         });
-                        
                         return { ...c, cost, profit };
                     }).sort((a, b) => b.profit - a.profit);
                 }
@@ -695,7 +736,7 @@
                 this.calculateAllRequirements();
                 this.renderMarket();
                 this.renderCrafts();
-                this.renderWishlist(); 
+                this.renderWishlist();
             },
             
             calculateAllRequirements() {
@@ -705,21 +746,16 @@
                         remaining: { task: 0, hideout: 0 },
                         active: false
                     };
-
-                    // Tasks
                     if(item.usedInTasks) {
                         item.usedInTasks.forEach(t => {
                             const taskInfo = this.data.tasks.find(tk => tk.id === t.id);
                             const count = 1; 
-                            
                             item.reqData.total.task += count;
                             if(taskInfo && !taskInfo.completed) {
                                 item.reqData.remaining.task += count;
                             }
                         });
                     }
-
-                    // Hideout
                     const hReqs = this.data.hideoutMap.get(item.id);
                     if(hReqs) {
                         hReqs.forEach(h => {
@@ -730,7 +766,6 @@
                             }
                         });
                     }
-                    
                     if(item.reqData.remaining.task > 0 || item.reqData.remaining.hideout > 0) {
                         item.reqData.active = true;
                     }
@@ -738,15 +773,8 @@
             },
 
             // --- HELPER FUNCTIONS ---
-            safeUpdateText(id, value) {
-                const el = document.getElementById(id);
-                if (el) el.innerText = value;
-            },
-
-            safeUpdateHTML(id, html) {
-                const el = document.getElementById(id);
-                if (el) el.innerHTML = html;
-            },
+            safeUpdateText(id, value) { const el = document.getElementById(id); if (el) el.innerText = value; },
+            safeUpdateHTML(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; },
 
             switchMarketTab(tab) {
                 this.data.marketConfig.tab = tab;
@@ -770,19 +798,159 @@
                 this.renderCrafts();
             },
 
-            loadWishlist() {
-                const s = localStorage.getItem('userWishlist');
-                if (s) this.data.wishlist = new Set(JSON.parse(s));
-            },
-            saveWishlist() {
-                localStorage.setItem('userWishlist', JSON.stringify([...this.data.wishlist]));
-            },
+            loadWishlist() { const s = localStorage.getItem('userWishlist'); if (s) this.data.wishlist = new Set(JSON.parse(s)); },
+            saveWishlist() { localStorage.setItem('userWishlist', JSON.stringify([...this.data.wishlist])); },
             toggleWishlist(id) {
                 if (this.data.wishlist.has(id)) this.data.wishlist.delete(id);
                 else this.data.wishlist.add(id);
                 this.saveWishlist();
-                this.renderMarket(); 
-                this.renderWishlist(); 
+                this.renderMarket();
+                this.renderWishlist();
+            },
+
+            // --- AMMO VIEWER FUNCTIONS (NEW) ---
+            switchAmmoView(view) {
+                this.data.ammoConfig.view = view;
+                document.getElementById('av-chart').className = `px-3 py-1 text-xs rounded transition ${view === 'chart' ? 'bg-tarkov-border text-white' : 'text-gray-500 hover:text-white'}`;
+                document.getElementById('av-list').className = `px-3 py-1 text-xs rounded transition ${view === 'list' ? 'bg-tarkov-border text-white' : 'text-gray-500 hover:text-white'}`;
+                document.getElementById('ammo-chart-container').classList.toggle('hidden', view !== 'chart');
+                document.getElementById('ammo-list-container').classList.toggle('hidden', view !== 'list');
+            },
+
+            renderAmmo() {
+                // 1. Process Data & Generate Filters
+                if (!this.data.ammo || this.data.ammo.length === 0) return;
+
+                const calibers = [...new Set(this.data.ammo.map(a => a.caliber))].sort();
+                const filterContainer = document.getElementById('ammo-filters');
+                
+                // Only regenerate buttons if not already there (to preserve state if just updating data)
+                if (filterContainer && filterContainer.children.length <= 1) {
+                     calibers.forEach(cal => {
+                        const cleanCal = cal.replace('Caliber', '');
+                        const btn = document.createElement('button');
+                        btn.className = `tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition whitespace-nowrap`;
+                        btn.innerText = cleanCal;
+                        btn.onclick = () => {
+                            this.data.ammoConfig.caliber = cal;
+                            document.querySelectorAll('#ammo-filters button').forEach(b => b.classList.remove('active', 'text-white'));
+                            btn.classList.add('active', 'text-white');
+                            this.updateAmmoVisuals();
+                        };
+                        filterContainer.appendChild(btn);
+                    });
+                }
+
+                this.updateAmmoVisuals();
+            },
+
+            updateAmmoVisuals() {
+                const selectedCal = this.data.ammoConfig.caliber;
+                let filteredAmmo = this.data.ammo;
+                if (selectedCal !== 'all') {
+                    filteredAmmo = filteredAmmo.filter(a => a.caliber === selectedCal);
+                }
+
+                // Update Table
+                const tbody = document.getElementById('ammo-table-body');
+                if(tbody) {
+                    tbody.innerHTML = filteredAmmo.map(a => `
+                        <tr class="hover:bg-white/5 border-b border-gray-800">
+                            <td class="px-4 py-3 font-mono text-xs text-gray-300">
+                                <span class="text-tarkov-accent">${a.item.shortName || a.item.name}</span><br>
+                                <span class="text-[9px] text-gray-500">${a.caliber.replace('Caliber','')}</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-400 font-mono">${a.damage}</td>
+                            <td class="px-4 py-3 font-bold font-mono ${a.penetrationPower > 40 ? 'text-red-400' : (a.penetrationPower > 30 ? 'text-yellow-500' : 'text-gray-500')}">${a.penetrationPower}</td>
+                            <td class="px-4 py-3 text-gray-500 font-mono">${a.armorDamage}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Update Chart
+                this.renderAmmoChart(filteredAmmo);
+            },
+
+            renderAmmoChart(data) {
+                const ctx = document.getElementById('ammoChartCanvas');
+                if (!ctx) return;
+
+                // Destroy previous chart if exists
+                if (this.ammoChart) {
+                    this.ammoChart.destroy();
+                }
+
+                // Prepare Data
+                const scatterData = data.map(a => ({
+                    x: a.damage,
+                    y: a.penetrationPower,
+                    name: a.item.shortName || a.item.name,
+                    fullData: a
+                }));
+
+                // Calculate Color based on Pen
+                const getColor = (pen) => {
+                    if (pen >= 60) return '#ef4444'; // Red (Class 6+)
+                    if (pen >= 50) return '#f97316'; // Orange (Class 5)
+                    if (pen >= 40) return '#eab308'; // Yellow (Class 4)
+                    if (pen >= 30) return '#84cc16'; // Lime (Class 3)
+                    return '#6b7280'; // Gray (Trash)
+                };
+
+                const backgroundColors = scatterData.map(d => getColor(d.y));
+
+                this.ammoChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Ammo Performance',
+                            data: scatterData,
+                            backgroundColor: backgroundColors,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                                titleColor: '#9a8c7d',
+                                bodyColor: '#fff',
+                                borderColor: '#333',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        const p = context.raw;
+                                        return [
+                                            `${p.name}`,
+                                            `Pen: ${p.y} / Dmg: ${p.x}`,
+                                            `Armor Dmg: ${p.fullData.armorDamage}%`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'DAMAGE', color: '#666' },
+                                grid: { color: '#333' },
+                                ticks: { color: '#888' }
+                            },
+                            y: {
+                                title: { display: true, text: 'PENETRATION', color: '#666' },
+                                grid: { color: '#333' },
+                                ticks: { color: '#888' },
+                                min: 0,
+                                max: 80
+                            }
+                        }
+                    }
+                });
             },
 
             // --- RENDERERS ---
@@ -906,23 +1074,15 @@
                         </div>`;
                     }
 
-                    // --- DETAIL CONTENT ---
-                    
+                    // ... Detail Content Generation (Same as before but omitted for brevity in thought, keeping full in output)
+                    // Re-implementing detail generation for completeness
                     let taskListHtml = '';
                     if (item.usedInTasks && item.usedInTasks.length > 0) {
                         taskListHtml = item.usedInTasks.map(t => {
                             const tInfo = this.data.tasks.find(tk => tk.id === t.id);
                             const isDone = tInfo ? tInfo.completed : false;
                             const nameContent = t.wikiLink ? `<a href="${t.wikiLink}" target="_blank" class="hover:text-tarkov-accent hover:underline" onclick="event.stopPropagation()">${t.name}</a>` : t.name;
-                            return `
-                                <div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 ${isDone ? 'text-gray-600' : 'text-gray-300'}">
-                                    <span class="truncate pr-2 ${isDone ? 'line-through' : ''}">
-                                        ${nameContent}
-                                        <span class="text-[9px] text-gray-500">(${t.trader.name})</span>
-                                    </span>
-                                    <span class="text-[9px] font-bold ${isDone ? 'text-gray-700' : 'text-tarkov-gold'}">${isDone ? 'DONE' : 'REQ'}</span>
-                                </div>
-                            `;
+                            return `<div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 ${isDone ? 'text-gray-600' : 'text-gray-300'}"><span class="truncate pr-2 ${isDone ? 'line-through' : ''}">${nameContent}<span class="text-[9px] text-gray-500">(${t.trader.name})</span></span><span class="text-[9px] font-bold ${isDone ? 'text-gray-700' : 'text-tarkov-gold'}">${isDone ? 'DONE' : 'REQ'}</span></div>`;
                         }).join('');
                     }
 
@@ -932,154 +1092,54 @@
                         hideoutListHtml = hReqs.map(h => {
                             const curLvl = this.data.userHideoutLevels[h.stationId] || 0;
                             const isDone = h.level <= curLvl;
-                            return `
-                                <div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 ${isDone ? 'text-gray-600' : 'text-gray-300'}">
-                                    <span class="truncate pr-2 ${isDone ? 'line-through' : ''}">${h.stationName} <span class="text-[9px] text-gray-500">(Lv${h.level})</span></span>
-                                    <span class="text-[9px] font-bold ${isDone ? 'text-gray-700' : 'text-tarkov-green'}">x${h.count}</span>
-                                </div>
-                            `;
+                            return `<div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 ${isDone ? 'text-gray-600' : 'text-gray-300'}"><span class="truncate pr-2 ${isDone ? 'line-through' : ''}">${h.stationName} <span class="text-[9px] text-gray-500">(Lv${h.level})</span></span><span class="text-[9px] font-bold ${isDone ? 'text-gray-700' : 'text-tarkov-green'}">x${h.count}</span></div>`;
                         }).join('');
                     }
 
-                    // ACQUISITION
                     let acquisitionHtml = '';
                     const barterOffers = this.data.acquisitionMap.get(item.id) || [];
                     barterOffers.forEach(offer => {
-                        const ingredients = offer.ingredients.map(ing => `
-                            <div class="flex items-center gap-1 bg-[#222] px-1.5 py-0.5 rounded border border-[#444]">
-                                <span class="text-[10px] text-gray-300">${ing.item.name}</span>
-                                <span class="text-[10px] text-tarkov-gold font-bold">x${ing.count}</span>
-                            </div>
-                        `).join('');
-                        acquisitionHtml += `
-                            <div class="bg-[#111] p-2 rounded border border-[#333] mb-2 last:mb-0">
-                                <div class="text-[10px] text-gray-500 uppercase mb-1">TRADER: ${offer.traderName} (LL${offer.level})</div>
-                                <div class="flex flex-wrap gap-1">${ingredients}</div>
-                            </div>
-                        `;
+                        const ingredients = offer.ingredients.map(ing => `<div class="flex items-center gap-1 bg-[#222] px-1.5 py-0.5 rounded border border-[#444]"><span class="text-[10px] text-gray-300">${ing.item.name}</span><span class="text-[10px] text-tarkov-gold font-bold">x${ing.count}</span></div>`).join('');
+                        acquisitionHtml += `<div class="bg-[#111] p-2 rounded border border-[#333] mb-2 last:mb-0"><div class="text-[10px] text-gray-500 uppercase mb-1">TRADER: ${offer.traderName} (LL${offer.level})</div><div class="flex flex-wrap gap-1">${ingredients}</div></div>`;
                     });
 
-                    // USED IN BARTER (UPDATED LOGIC)
                     let usedInBarterHtml = '';
                     if (item.bartersFor && item.bartersFor.length > 0) {
                         const list = item.bartersFor.map(b => {
-                            // Find requirement count for THIS item
-                            const reqEntry = b.requiredItems.find(ri => ri.item.id === item.id);
-                            const reqCount = reqEntry ? reqEntry.count : '?';
-                            
-                            const reward = b.rewardItems[0]; 
-                            const rewardName = reward ? reward.item.name : 'Unknown';
-                            const rewardIcon = reward && reward.item.iconLink ? `<img src="${reward.item.iconLink}" class="w-6 h-6 object-contain bg-[#222] rounded mr-2">` : '';
-
-                            return `
-                                <div class="flex items-center justify-between py-2 border-b border-[#333] last:border-0 text-gray-300">
-                                    <div class="flex items-center min-w-0">
-                                        ${rewardIcon}
-                                        <div class="flex flex-col truncate">
-                                            <span class="text-xs font-bold text-tarkov-purple truncate">${rewardName}</span>
-                                            <span class="text-[9px] text-gray-500">${b.trader.name} LL${b.level}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2 whitespace-nowrap pl-2">
-                                        <i class="fa-solid fa-arrow-left text-gray-600 text-[10px]"></i>
-                                        <span class="text-xs font-bold text-tarkov-gold">x${reqCount}</span>
-                                    </div>
-                                </div>
-                            `;
+                            const rewards = b.rewardItems.map(r => r.item.name).join(', ');
+                            return `<div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 text-gray-300"><span class="truncate pr-2 text-xs">${rewards}</span><span class="text-[10px] text-gray-500 whitespace-nowrap">${b.trader.name} LL${b.level}</span></div>`;
                         }).join('');
-
-                        usedInBarterHtml = `
-                            <div class="mt-2 bg-[#0f0f0f] border border-[#333] rounded overflow-hidden">
-                                <div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2">
-                                    <i class="fa-solid fa-right-left text-[#c084fc]"></i> <span class="font-bold text-[#c084fc] text-xs">USED IN BARTER</span>
-                                </div>
-                                <div class="p-2">${list}</div>
-                            </div>
-                        `;
+                        usedInBarterHtml = `<div class="mt-2 bg-[#0f0f0f] border border-[#333] rounded overflow-hidden"><div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2"><i class="fa-solid fa-right-left text-[#c084fc]"></i> <span class="font-bold text-[#c084fc] text-xs">USED IN BARTER</span></div><div class="p-2 space-y-1">${list}</div></div>`;
                     }
 
-                    // USED IN CRAFT
                     let usedInCraftHtml = '';
                     if (craftUses && craftUses.length > 0) {
                         const list = craftUses.map(c => {
                             const products = c.products.map(p => p.item.name).join(', ');
-                            return `
-                                <div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 text-gray-300">
-                                    <span class="truncate pr-2 text-xs">${products}</span>
-                                    <span class="text-[10px] text-gray-500 whitespace-nowrap">${c.station} Lv${c.level}</span>
-                                </div>
-                            `;
+                            return `<div class="flex justify-between items-center py-1 border-b border-[#333] last:border-0 text-gray-300"><span class="truncate pr-2 text-xs">${products}</span><span class="text-[10px] text-gray-500 whitespace-nowrap">${c.station} Lv${c.level}</span></div>`;
                         }).join('');
-
-                        usedInCraftHtml = `
-                            <div class="mt-2 bg-[#0f0f0f] border border-[#333] rounded overflow-hidden">
-                                <div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2">
-                                    <i class="fa-solid fa-wrench text-[#60a5fa]"></i> <span class="font-bold text-[#60a5fa] text-xs">USED IN CRAFT</span>
-                                </div>
-                                <div class="p-2 space-y-1">${list}</div>
-                            </div>
-                        `;
+                        usedInCraftHtml = `<div class="mt-2 bg-[#0f0f0f] border border-[#333] rounded overflow-hidden"><div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2"><i class="fa-solid fa-wrench text-[#60a5fa]"></i> <span class="font-bold text-[#60a5fa] text-xs">USED IN CRAFT</span></div><div class="p-2 space-y-1">${list}</div></div>`;
                     }
 
                     card.innerHTML = `
                         <div class="flex gap-4 items-center">
-                            <div class="w-12 h-12 bg-[#111] border border-[#333] flex items-center justify-center rounded shrink-0 overflow-hidden relative">
-                                <img src="${item.iconLink}" class="w-10 h-10 object-contain absolute" onerror="this.style.display='none'">
-                            </div>
+                            <div class="w-12 h-12 bg-[#111] border border-[#333] flex items-center justify-center rounded shrink-0 overflow-hidden relative"><img src="${item.iconLink}" class="w-10 h-10 object-contain absolute" onerror="this.style.display='none'"></div>
                             <div class="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                                <div class="md:col-span-5">
-                                    <h3 class="font-bold text-tarkov-gold text-sm truncate">${item.name}</h3>
-                                    <div class="mt-1 flex flex-wrap gap-1">${badges}</div>
-                                </div>
-                                <div class="md:col-span-3 text-right md:text-left">
-                                    <div class="text-sm font-bold font-mono text-tarkov-blue">₽${priceFmt}</div>
-                                    <div class="text-[10px] ${item.changeLast48hPercent >= 0 ? 'text-tarkov-green' : 'text-tarkov-red'}">${item.changeLast48hPercent}% (24h)</div>
-                                    ${craftIndicator}
-                                </div>
-                                <div class="md:col-span-4 flex justify-end items-center gap-3">
-                                    ${reqMatrix}
-                                    <i class="fa-solid fa-star text-lg wishlist-star ${isWish ? 'active' : 'text-gray-700'}" onclick="app.toggleWishlist('${item.id}')"></i>
-                                </div>
+                                <div class="md:col-span-5"><h3 class="font-bold text-tarkov-gold text-sm truncate">${item.name}</h3><div class="mt-1 flex flex-wrap gap-1">${badges}</div></div>
+                                <div class="md:col-span-3 text-right md:text-left"><div class="text-sm font-bold font-mono text-tarkov-blue">₽${priceFmt}</div><div class="text-[10px] ${item.changeLast48hPercent >= 0 ? 'text-tarkov-green' : 'text-tarkov-red'}">${item.changeLast48hPercent}% (24h)</div>${craftIndicator}</div>
+                                <div class="md:col-span-4 flex justify-end items-center gap-3">${reqMatrix}<i class="fa-solid fa-star text-lg wishlist-star ${isWish ? 'active' : 'text-gray-700'}" onclick="app.toggleWishlist('${item.id}')"></i></div>
                             </div>
                         </div>
-                        
                         <div class="detail-section text-xs text-gray-400">
-                             <div class="grid grid-cols-2 gap-2 mb-3 bg-black/40 p-2 rounded border border-gray-800 text-center">
-                                <div><span class="text-[10px] text-gray-500 block">LOW (24h)</span><span class="text-gray-300 font-mono">₽${lowPrice}</span></div>
-                                <div><span class="text-[10px] text-gray-500 block">HIGH (24h)</span><span class="text-gray-300 font-mono">₽${highPrice}</span></div>
-                            </div>
-                            
+                             <div class="grid grid-cols-2 gap-2 mb-3 bg-black/40 p-2 rounded border border-gray-800 text-center"><div><span class="text-[10px] text-gray-500 block">LOW (24h)</span><span class="text-gray-300 font-mono">₽${lowPrice}</span></div><div><span class="text-[10px] text-gray-500 block">HIGH (24h)</span><span class="text-gray-300 font-mono">₽${highPrice}</span></div></div>
                             <div class="space-y-2">
-                                ${acquisitionHtml ? `
-                                <div class="mt-2">
-                                    <h4 class="text-xs font-bold text-blue-400 uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-cart-shopping"></i> ACQUISITION</h4>
-                                    <div class="space-y-1">${acquisitionHtml}</div>
-                                </div>` : ''}
-
+                                ${acquisitionHtml ? `<div class="mt-2"><h4 class="text-xs font-bold text-blue-400 uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-cart-shopping"></i> ACQUISITION</h4><div class="space-y-1">${acquisitionHtml}</div></div>` : ''}
                                 ${usedInBarterHtml}
                                 ${usedInCraftHtml}
-
-                                ${taskListHtml ? `
-                                <div class="bg-[#0f0f0f] border border-[#333] rounded overflow-hidden">
-                                    <div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2">
-                                        <i class="fa-solid fa-scroll text-tarkov-gold"></i> <span class="font-bold text-tarkov-gold">TASKS</span>
-                                    </div>
-                                    <div class="p-2 space-y-1">${taskListHtml}</div>
-                                </div>` : ''}
-
-                                ${hideoutListHtml ? `
-                                <div class="bg-[#0f0f0f] border border-[#333] rounded overflow-hidden">
-                                    <div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2">
-                                        <i class="fa-solid fa-dungeon text-tarkov-green"></i> <span class="font-bold text-tarkov-green">HIDEOUT</span>
-                                    </div>
-                                    <div class="p-2 space-y-1">${hideoutListHtml}</div>
-                                </div>` : ''}
+                                ${taskListHtml ? `<div class="bg-[#0f0f0f] border border-[#333] rounded overflow-hidden"><div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2"><i class="fa-solid fa-scroll text-tarkov-gold"></i> <span class="font-bold text-tarkov-gold">TASKS</span></div><div class="p-2 space-y-1">${taskListHtml}</div></div>` : ''}
+                                ${hideoutListHtml ? `<div class="bg-[#0f0f0f] border border-[#333] rounded overflow-hidden"><div class="px-2 py-1 bg-[#1a1a1a] border-b border-[#333] flex items-center gap-2"><i class="fa-solid fa-dungeon text-tarkov-green"></i> <span class="font-bold text-tarkov-green">HIDEOUT</span></div><div class="p-2 space-y-1">${hideoutListHtml}</div></div>` : ''}
                             </div>
-
-                            <div class="mt-4 flex justify-center bg-black/20 p-2 rounded border border-[#333]">
-                                <img src="${item.gridImageLink}" class="max-w-full max-h-32 object-contain drop-shadow-lg" onerror="this.style.display='none'">
-                            </div>
-
+                            <div class="mt-4 flex justify-center bg-black/20 p-2 rounded border border-[#333]"><img src="${item.gridImageLink}" class="max-w-full max-h-32 object-contain drop-shadow-lg" onerror="this.style.display='none'"></div>
                             <div class="text-center italic text-gray-600 pt-2 mt-2 border-t border-gray-800">Tap to close details</div>
                         </div>
                     `;
@@ -1099,9 +1159,7 @@
 
                 let results = this.data.crafts;
 
-                if (st !== 'all') {
-                    results = results.filter(c => c.station.name.includes(st));
-                }
+                if (st !== 'all') results = results.filter(c => c.station.name.includes(st));
 
                 if (search.length > 0) {
                     results = results.filter(c => {
@@ -1121,12 +1179,10 @@
                             const hideoutMatch = filters.hideout && req.remaining.hideout > 0;
                             const barterMatch = filters.barter && (marketItem.bartersFor && marketItem.bartersFor.length > 0);
                             const craftMatch = filters.craft && this.data.craftMap.has(marketItem.id);
-
                             if (filters.task && !taskMatch) return false;
                             if (filters.hideout && !hideoutMatch) return false;
                             if (filters.barter && !barterMatch) return false;
                             if (filters.craft && !craftMatch) return false;
-
                             return true;
                         });
                     });
@@ -1155,45 +1211,29 @@
 
                     const card = document.createElement('div');
                     card.className = 'tarkov-panel rounded p-3 flex flex-col relative border-l-4 ' + (craft.profit >= 0 ? 'border-l-green-600' : 'border-l-red-600');
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">${craft.station.name} Lv${craft.level}</span>
-                            <div class="text-right">
-                                <span class="block text-xs text-gray-500">PROFIT</span>
-                                <span class="font-bold font-mono text-lg ${craft.profit >= 0 ? 'profit-pos' : 'profit-neg'}">₽${profitFmt}</span>
-                            </div>
-                        </div>
-                        <div class="mb-3">${rewards}</div>
-                        <div class="bg-[#111] p-2 rounded border border-[#333]">
-                            <div class="flex justify-between text-[10px] text-gray-500 mb-1 border-b border-[#333] pb-1"><span>INGREDIENTS</span><span>COST: ₽${costFmt}</span></div>
-                            <div class="max-h-24 overflow-y-auto custom-scrollbar">${reqs}</div>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">${craft.station.name} Lv${craft.level}</span><div class="text-right"><span class="block text-xs text-gray-500">PROFIT</span><span class="font-bold font-mono text-lg ${craft.profit >= 0 ? 'profit-pos' : 'profit-neg'}">₽${profitFmt}</span></div></div><div class="mb-3">${rewards}</div><div class="bg-[#111] p-2 rounded border border-[#333]"><div class="flex justify-between text-[10px] text-gray-500 mb-1 border-b border-[#333] pb-1"><span>INGREDIENTS</span><span>COST: ₽${costFmt}</span></div><div class="max-h-24 overflow-y-auto custom-scrollbar">${reqs}</div></div>`;
                     grid.appendChild(card);
                 });
             },
 
+            // --- HIDEOUT MANAGER ---
             renderHideout() {
                 const grid = document.getElementById('hideout-grid');
                 if(!grid) return;
                 
                 const stations = this.data.hideoutStationsRaw;
-                if (!stations || stations.length === 0) {
-                    grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Waiting for Data...</div>';
-                    return;
-                }
+                if (!stations || stations.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Waiting for Data...</div>'; return; }
 
                 stations.sort((a, b) => a.name.localeCompare(b.name));
                 grid.innerHTML = '';
                 
+                let totalStations = stations.length;
                 let maxLevelSum = 0;
                 let currentLevelSum = 0;
-                let totalStations = stations.length; // Count active stations
 
                 stations.forEach(station => {
                     const savedLevel = this.data.userHideoutLevels[station.id] || 0;
                     const maxLevel = Math.max(...station.levels.map(l => l.level));
-                    
                     maxLevelSum += maxLevel;
                     currentLevelSum += savedLevel;
                     
@@ -1205,33 +1245,13 @@
                     if (isMaxed) {
                         reqHtml = `<div class="text-tarkov-green text-xs font-bold text-center py-4 bg-green-900/10 rounded border border-green-900/30">MAX LEVEL REACHED</div>`;
                     } else if (nextLevelData) {
-                        const items = nextLevelData.itemRequirements.map(req => `
-                            <div class="flex items-center gap-2 bg-[#111] p-1.5 rounded border border-[#333]">
-                                <img src="${req.item.iconLink}" class="w-6 h-6 object-contain bg-[#222] rounded" onerror="this.style.display='none'">
-                                <div class="min-w-0 flex-1">
-                                    <div class="text-[10px] text-gray-300 truncate">${req.item.name}</div>
-                                    <div class="text-[9px] text-gray-500">x${req.count}</div>
-                                </div>
-                            </div>
-                        `).join('');
+                        const items = nextLevelData.itemRequirements.map(req => `<div class="flex items-center gap-2 bg-[#111] p-1.5 rounded border border-[#333]"><img src="${req.item.iconLink}" class="w-6 h-6 object-contain bg-[#222] rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-[10px] text-gray-300 truncate">${req.item.name}</div><div class="text-[9px] text-gray-500">x${req.count}</div></div></div>`).join('');
                         reqHtml = `<div class="space-y-1 mt-2 mb-1"><div class="text-[9px] text-gray-500 uppercase">Requirements for Lv${nextLevel}</div><div class="grid grid-cols-2 gap-1">${items}</div></div>`;
-                    } else {
-                        reqHtml = `<div class="text-gray-500 text-xs text-center py-4">Data not available</div>`;
-                    }
+                    } else { reqHtml = `<div class="text-gray-500 text-xs text-center py-4">Data not available</div>`; }
 
                     const card = document.createElement('div');
                     card.className = `tarkov-panel rounded p-3 border ${isMaxed ? 'border-tarkov-green/30' : 'border-tarkov-border'} flex flex-col`;
-                    card.innerHTML = `
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sm ${isMaxed ? 'text-tarkov-green' : 'text-gray-200'} truncate pr-2">${station.name}</h3>
-                            <div class="flex items-center gap-1 bg-[#111] rounded p-1 border border-[#333]">
-                                <button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', -1)" ${savedLevel <= 0 ? 'disabled' : ''}>-</button>
-                                <span class="w-8 text-center font-mono font-bold ${isMaxed ? 'text-tarkov-green' : 'text-white'}">${savedLevel}</span>
-                                <button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', 1)" ${isMaxed ? 'disabled' : ''}>+</button>
-                            </div>
-                        </div>
-                        <div class="flex-1">${reqHtml}</div>
-                    `;
+                    card.innerHTML = `<div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm ${isMaxed ? 'text-tarkov-green' : 'text-gray-200'} truncate pr-2">${station.name}</h3><div class="flex items-center gap-1 bg-[#111] rounded p-1 border border-[#333]"><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', -1)" ${savedLevel <= 0 ? 'disabled' : ''}>-</button><span class="w-8 text-center font-mono font-bold ${isMaxed ? 'text-tarkov-green' : 'text-white'}">${savedLevel}</span><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', 1)" ${isMaxed ? 'disabled' : ''}>+</button></div></div><div class="flex-1">${reqHtml}</div>`;
                     grid.appendChild(card);
                 });
 
@@ -1245,29 +1265,20 @@
                 const stations = this.data.hideoutStationsRaw;
                 const station = stations.find(s => s.id === stationId);
                 if (!station) return;
-
                 const maxLevel = Math.max(...station.levels.map(l => l.level));
                 let current = this.data.userHideoutLevels[stationId] || 0;
                 let next = current + change;
-
                 if (next < 0) next = 0;
                 if (next > maxLevel) next = maxLevel;
-
                 this.data.userHideoutLevels[stationId] = next;
                 this.saveHideoutStatus();
-                this.calculateAllRequirements(); 
+                this.calculateAllRequirements();
                 this.renderHideout();
                 this.renderMarket();
             },
 
-            loadHideoutStatus() {
-                const s = localStorage.getItem('userHideoutLevels');
-                if (s) {
-                    try { this.data.userHideoutLevels = JSON.parse(s); } catch (e) { this.data.userHideoutLevels = {}; }
-                }
-            },
+            loadHideoutStatus() { const s = localStorage.getItem('userHideoutLevels'); if (s) { try { this.data.userHideoutLevels = JSON.parse(s); } catch (e) { this.data.userHideoutLevels = {}; } } },
             saveHideoutStatus() { localStorage.setItem('userHideoutLevels', JSON.stringify(this.data.userHideoutLevels)); },
-
 
             // --- GUNSMITH MODULE ---
             async fetchWeaponData() {
@@ -1443,22 +1454,13 @@
                                     <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
                                         ${(props.slots || []).map(slot => {
                                             const attached = build.attachedParts.find(p => p.slotName === slot.name);
-                                            return `
-                                            <div class="bg-black/40 p-2 rounded border border-gray-800 flex justify-between items-center group/slot">
-                                                <span class="text-xs text-gray-400 font-mono">${slot.name}</span>
-                                                <div class="flex items-center gap-2">
-                                                    ${attached ? `<span class="text-tarkov-accent text-xs truncate max-w-[150px]" title="${attached.part.name}">${attached.part.name}</span><button class="text-red-500 hover:text-red-400" onclick="app.removePart('${slot.name}')"><i class="fa-solid fa-times"></i></button>` : `<button class="text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300" onclick='app.showParts("${slot.name}")'>Select Part</button>`}
-                                                </div>
-                                            </div>`;
+                                            return `<div class="bg-black/40 p-2 rounded border border-gray-800 flex justify-between items-center group/slot"><span class="text-xs text-gray-400 font-mono">${slot.name}</span><div class="flex items-center gap-2">${attached ? `<span class="text-tarkov-accent text-xs truncate max-w-[150px]" title="${attached.part.name}">${attached.part.name}</span><button class="text-red-500 hover:text-red-400" onclick="app.removePart('${slot.name}')"><i class="fa-solid fa-times"></i></button>` : `<button class="text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300" onclick='app.showParts("${slot.name}")'>Select Part</button>`}</div></div>`;
                                         }).join('')}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="gs-part-selector" class="hidden mt-4 border-t border-gray-700 pt-4 animate-fade-in scroll-mt-20">
-                            <div class="flex justify-between items-center mb-2"><h4 class="text-xs text-tarkov-accent uppercase font-bold">Select Part</h4><button onclick="document.getElementById('gs-part-selector').classList.add('hidden')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button></div>
-                            <div id="gs-part-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar"></div>
-                        </div>
+                        <div id="gs-part-selector" class="hidden mt-4 border-t border-gray-700 pt-4 animate-fade-in scroll-mt-20"><div class="flex justify-between items-center mb-2"><h4 class="text-xs text-tarkov-accent uppercase font-bold">Select Part</h4><button onclick="document.getElementById('gs-part-selector').classList.add('hidden')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div id="gs-part-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar"></div></div>
                     </div>
                 `;
                 this.safeUpdateHTML('gs-builder-area', html);
@@ -1482,12 +1484,7 @@
                     return;
                 }
                 this.data.currentSlotCandidates = items;
-                list.innerHTML = items.map(p => `
-                    <div class="bg-[#0f0f0f] border border-gray-800 p-2 rounded hover:border-tarkov-accent cursor-pointer flex flex-col items-center gap-1 group transition-all hover:bg-white/5" onclick='app.attachPart("${slotName}", "${p.id}")' title="${p.name}">
-                        <img src="${p.gridImageLink}" class="w-12 h-12 object-contain group-hover:scale-110 transition" loading="lazy" onerror="this.style.opacity=0.3">
-                        <span class="text-[10px] text-gray-400 text-center truncate w-full group-hover:text-white">${p.name}</span>
-                    </div>
-                `).join('');
+                list.innerHTML = items.map(p => `<div class="bg-[#0f0f0f] border border-gray-800 p-2 rounded hover:border-tarkov-accent cursor-pointer flex flex-col items-center gap-1 group transition-all hover:bg-white/5" onclick='app.attachPart("${slotName}", "${p.id}")' title="${p.name}"><img src="${p.gridImageLink}" class="w-12 h-12 object-contain group-hover:scale-110 transition" loading="lazy" onerror="this.style.opacity=0.3"><span class="text-[10px] text-gray-400 text-center truncate w-full group-hover:text-white">${p.name}</span></div>`).join('');
                 setTimeout(() => { container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
             },
 
@@ -1597,14 +1594,6 @@
                         </div>
                     </div>`;
                 }).join('');
-            },
-
-            renderAmmo() {
-                const tbody = document.getElementById('ammo-table-body');
-                if(!tbody) return; 
-                tbody.innerHTML = this.data.ammo.slice(0, 50).map(a => `
-                    <tr class="hover:bg-white/5 border-b border-gray-800"><td class="px-4 py-3 font-mono text-xs text-gray-500">${a.item.name}</td><td class="px-4 py-3 font-bold text-gray-200">${a.item.name}</td><td class="px-4 py-3 text-gray-400">${a.damage}</td><td class="px-4 py-3 ${a.penetrationPower > 40 ? 'text-red-400 font-bold' : 'text-yellow-500'}">${a.penetrationPower}</td><td class="px-4 py-3 text-gray-500">${a.armorDamage}</td></tr>
-                `).join('');
             },
 
             // --- UTILITIES ---
