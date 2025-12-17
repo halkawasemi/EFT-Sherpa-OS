@@ -72,65 +72,42 @@
 
         /* --- Market Monitor Specific Styles --- */
         .req-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; transition: all 0.3s; }
-        
-        /* Active States */
         .req-quest { background: rgba(234, 179, 8, 0.2); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4); }
         .req-hideout { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
         .req-barter { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
         .req-craft { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-        
-        /* Phase 3: Inactive/Completed States */
         .req-done { background: rgba(60, 60, 60, 0.2); color: #666; border: 1px solid rgba(60, 60, 60, 0.4); opacity: 0.6; }
-        .req-done-text { text-decoration: line-through; opacity: 0.6; }
         
         .profit-pos { color: #4ade80; }
         .profit-neg { color: #ef4444; }
         
-        /* Market Accordion */
+        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
         .detail-section { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, margin-top 0.3s; }
         .market-card.expanded .detail-section { max-height: 2000px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #444; }
-        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
         
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Market Tab Navigation */
         .market-nav-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; font-size: 0.8rem; background: transparent; }
         .market-nav-tab:hover { background: rgba(255,255,255,0.05); }
         .market-nav-tab.active { color: #9a8c7d; border-bottom-color: #9a8c7d; background: linear-gradient(to top, rgba(154, 140, 125, 0.1), transparent); }
         
-        /* Hideout Specific */
         .hideout-level-btn { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; transition: all 0.2s; }
         .hideout-level-btn:hover:not(:disabled) { background: #333; color: #fff; }
         .hideout-level-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Filter Checkbox Button Style (Phase 4) */
-        .filter-toggle-btn {
-            font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-        }
-        .filter-toggle-btn.active {
-            background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d;
-        }
+        .filter-toggle-btn { font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .filter-toggle-btn.active { background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d; }
         .filter-toggle-btn:hover:not(.active) { background: #252525; color: #aaa; }
         
-        /* Safe Area for iPhone */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-        /* Wishlist Star */
         .wishlist-star { cursor: pointer; transition: transform 0.2s; }
         .wishlist-star:hover { transform: scale(1.2); }
         .wishlist-star.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
 
-        /* Settings specific */
-        .trader-avatar-box { position: relative; }
-        .trader-avatar-box img { filter: grayscale(100%); transition: all 0.3s; }
-        .trader-avatar-box.active img { filter: grayscale(0%); }
-        .trader-level-selector select { appearance: none; text-align: center; }
-
-        /* Raid Planner Maps */
-        .map-card { transition: all 0.2s; border: 1px solid transparent; }
-        .map-card:hover, .map-card.active { border-color: #9a8c7d; background: rgba(255,255,255,0.05); }
-        .map-card.active { background: rgba(154, 140, 125, 0.1); }
+        /* Craft Cost Detail */
+        .cost-source-trader { color: #4ade80; font-weight: bold; }
+        .cost-source-flea { color: #f97316; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden relative text-sm md:text-base">
@@ -141,12 +118,12 @@
     <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
         <div class="flex items-center gap-2 md:gap-3">
             <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
-            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.60 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
+            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.61 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
         </div>
         
         <div class="flex items-center gap-2 md:gap-4">
             <button id="sync-btn" class="text-xs flex items-center gap-2 bg-tarkov-border hover:bg-gray-700 transition px-3 py-2 rounded text-gray-300 border border-tarkov-border active:scale-95">
-                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">SYNC</span>
+                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">LIVE SYNC</span><span class="md:hidden">SYNC</span>
             </button>
             <button class="nav-btn-shortcut text-gray-400 hover:text-white transition px-2 py-2" data-target="settings" title="Settings">
                 <i class="fa-solid fa-gear text-lg"></i>
@@ -163,9 +140,6 @@
                 <div class="text-xs text-gray-500 uppercase font-bold mb-2">Command</div>
                 <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 bg-tarkov-border text-tarkov-accent border-l-2 border-tarkov-accent font-medium" data-target="dashboard">
                     <i class="fa-solid fa-chart-line w-6 text-center"></i> Dashboard
-                </button>
-                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="raid">
-                    <i class="fa-solid fa-map w-6 text-center"></i> Raid Planner
                 </button>
                 <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="market">
                     <i class="fa-solid fa-shop w-6 text-center"></i> Market & Craft
@@ -193,7 +167,7 @@
             
             <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">
                 INTEGRATED SYSTEM<br>
-                v0.60 (RAID OPS)
+                v0.61 (ECONOMY)
             </div>
         </nav>
 
@@ -226,80 +200,21 @@
                 <div class="glass-panel p-4 md:p-6 rounded border border-dashed border-gray-700">
                     <h2 class="text-lg md:text-xl text-white mb-2"><i class="fa-solid fa-rocket mr-2"></i>Quick Access</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button class="nav-btn-shortcut flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-tarkov-accent transition text-left w-full" data-target="raid">
-                            <div class="bg-tarkov-accent/20 p-2 rounded text-tarkov-accent"><i class="fa-solid fa-map"></i></div>
-                            <div>
-                                <div class="text-sm font-bold text-gray-200">Raid Planner</div>
-                                <div class="text-xs text-gray-500">マップ別タスク確認・ボス情報・出撃準備</div>
-                            </div>
-                        </button>
                         <button class="nav-btn-shortcut flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-tarkov-blue transition text-left w-full" data-target="market">
                             <div class="bg-tarkov-blue/20 p-2 rounded text-tarkov-blue"><i class="fa-solid fa-shop"></i></div>
                             <div>
                                 <div class="text-sm font-bold text-gray-200">Market Monitor</div>
-                                <div class="text-xs text-gray-500">市場価格・クラフト利益・バーター逆引き</div>
+                                <div class="text-xs text-gray-500">市場価格・クラフト利益 (LL考慮済)</div>
+                            </div>
+                        </button>
+                        <button class="nav-btn-shortcut flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-gray-500 transition text-left w-full" data-target="settings">
+                            <div class="bg-gray-700/20 p-2 rounded text-gray-400"><i class="fa-solid fa-gear"></i></div>
+                            <div>
+                                <div class="text-sm font-bold text-gray-200">System Config</div>
+                                <div class="text-xs text-gray-500">PvP/PvE切替・トレーダーレベル設定</div>
                             </div>
                         </button>
                     </div>
-                </div>
-            </div>
-
-            <!-- VIEW: RAID PLANNER (NEW) -->
-            <div id="view-raid" class="hidden space-y-4 animate-fade-in flex flex-col h-full">
-                <!-- Map Selector -->
-                <div class="glass-panel p-3 rounded border border-tarkov-border">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2"><i class="fa-solid fa-globe"></i> TARGET ZONE SELECTION</h3>
-                    <div id="raid-map-list" class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                        <!-- Maps injected here -->
-                        <div class="text-xs text-gray-500 px-2">Loading Map Data...</div>
-                    </div>
-                </div>
-
-                <!-- Raid Intel & Tasks -->
-                <div id="raid-content" class="flex-1 overflow-hidden hidden flex-col md:flex-row gap-4">
-                    
-                    <!-- LEFT: Intel -->
-                    <div class="w-full md:w-1/3 space-y-4">
-                        <div class="glass-panel p-4 rounded border-t-2 border-t-tarkov-accent h-auto">
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h2 id="raid-map-name" class="text-xl font-bold text-white uppercase tracking-wider">MAP NAME</h2>
-                                    <div class="text-[10px] text-gray-500 flex gap-3 mt-1">
-                                        <span id="raid-time"><i class="fa-regular fa-clock mr-1"></i> -- min</span>
-                                        <span id="raid-players"><i class="fa-solid fa-users mr-1"></i> --</span>
-                                    </div>
-                                </div>
-                                <a id="raid-wiki-link" href="#" target="_blank" class="text-xs text-tarkov-blue hover:underline"><i class="fa-solid fa-external-link-alt"></i> WIKI</a>
-                            </div>
-                            
-                            <!-- Boss Intel -->
-                            <div class="bg-black/30 rounded p-3 border border-gray-800">
-                                <h4 class="text-[10px] font-bold text-red-500 uppercase mb-2"><i class="fa-solid fa-skull mr-1"></i> High Value Targets</h4>
-                                <div id="raid-boss-list" class="space-y-2 text-xs">
-                                    <div class="text-gray-600 italic">No intelligence available.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT: Active Tasks -->
-                    <div class="w-full md:w-2/3 flex flex-col min-h-0">
-                         <div class="glass-panel rounded flex flex-col h-full max-h-[60vh] md:max-h-none border-t-2 border-t-tarkov-green">
-                            <div class="p-3 border-b border-gray-800 bg-black/20 flex justify-between items-center">
-                                <h3 class="text-sm font-bold text-gray-200"><i class="fa-solid fa-list-check mr-2 text-tarkov-green"></i>ACTIVE OPERATIONS</h3>
-                                <span id="raid-task-count" class="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">0</span>
-                            </div>
-                            <div id="raid-task-list" class="p-3 overflow-y-auto custom-scrollbar space-y-2 flex-1">
-                                <!-- Tasks injected here -->
-                            </div>
-                         </div>
-                    </div>
-                </div>
-                
-                <!-- Placeholder when no map selected -->
-                <div id="raid-placeholder" class="flex-1 flex flex-col items-center justify-center text-gray-600 opacity-50 min-h-[300px]">
-                    <i class="fa-solid fa-map-location-dot text-5xl mb-4"></i>
-                    <div class="text-sm">Select a map to initialize tactical briefing</div>
                 </div>
             </div>
 
@@ -560,7 +475,7 @@
                 </div>
             </div>
 
-            <!-- VIEW: AMMO (UPDATED) -->
+            <!-- VIEW: AMMO -->
             <div id="view-ammo" class="hidden space-y-4 animate-fade-in flex flex-col h-full">
                 <!-- Ammo Control Panel -->
                 <div class="bg-tarkov-panel p-3 border border-tarkov-border rounded shrink-0">
@@ -585,7 +500,7 @@
                     <canvas id="ammoChartCanvas"></canvas>
                 </div>
 
-                <!-- List Container (Hidden by default) -->
+                <!-- List Container -->
                 <div id="ammo-list-container" class="glass-panel rounded overflow-hidden flex-1 hidden flex flex-col">
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
@@ -612,9 +527,6 @@
             <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500 mobile-nav-active" data-target="dashboard">
                 <i class="fa-solid fa-chart-line text-sm"></i><span class="text-[9px]">Dash</span>
             </button>
-            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="raid">
-                <i class="fa-solid fa-map text-sm"></i><span class="text-[9px]">Raid</span>
-            </button>
             <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="market">
                 <i class="fa-solid fa-shop text-sm"></i><span class="text-[9px]">Market</span>
             </button>
@@ -627,6 +539,9 @@
             <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="hideout">
                 <i class="fa-solid fa-dungeon text-sm"></i><span class="text-[9px]">Hide</span>
             </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="ammo">
+                <i class="fa-solid fa-bullseye text-sm"></i><span class="text-[9px]">Chart</span>
+            </button>
         </div>
     </nav>
 
@@ -636,18 +551,18 @@
     </div>
 
     <script>
-        // --- APP CONTROLLER ---
         window.app = {
             data: { 
                 tasks: [], 
                 ammo: [], 
                 traders: [],
-                maps: [], // New Map Data
+                maps: [],
                 weapons: [], 
                 currentBuild: null,
                 currentSlotCandidates: [],
                 marketItems: [],
-                itemPriceMap: new Map(),
+                itemPriceMap: new Map(), // Simple price map for quick lookup
+                itemFullPriceData: new Map(), // Stores full buyFor data for smart calculations
                 hideoutMap: new Map(),
                 acquisitionMap: new Map(),
                 crafts: [],
@@ -667,7 +582,7 @@
                     caliber: 'all'
                 },
                 config: {
-                    gameMode: 'pve', // 'pve' or 'regular'
+                    gameMode: 'pve', 
                     traderLevels: {
                         'Prapor': 4,
                         'Therapist': 4,
@@ -678,12 +593,9 @@
                         'Jaeger': 4,
                         'Ref': 4
                     }
-                },
-                // Raid Planner State
-                currentRaidMapId: null
+                }
             },
             
-            // Chart.js Instance
             ammoChart: null,
 
             consts: {
@@ -714,7 +626,6 @@
                 }
             },
             
-            // --- UTIL: Debounce ---
             debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -736,7 +647,7 @@
             },
 
             async runInit() {
-                this.loadConfig(); // Load Saved Config First
+                this.loadConfig(); 
                 this.renderConfigUI();
                 this.setupListeners();
                 this.loadHideoutStatus();
@@ -748,7 +659,6 @@
 
             async fetchApiData(query) {
                 try {
-                    // FIXED: Regex was causing syntax error due to newline
                     const cleanQuery = query.replace(new RegExp("[\\r\\n]+", "g"), ' ').replace(new RegExp("\\s{2,}", "g"), ' ').trim();
                     const res = await fetch('https://api.tarkov.dev/graphql', {
                         method: 'POST', 
@@ -783,7 +693,6 @@
                     btn.disabled = true;
                 }
 
-                // Update Header Badge
                 const modeLabel = this.data.config.gameMode === 'pve' ? 'PvE Zone' : 'PvP Mode';
                 const modeColor = this.data.config.gameMode === 'pve' ? 'bg-tarkov-green text-black' : 'bg-red-600 text-white';
                 const badge = document.getElementById('header-mode-badge');
@@ -796,16 +705,14 @@
                 this.safeUpdateHTML('dash-status', `<span class="text-yellow-500">INITIALIZING...</span>`);
 
                 try {
-                    // Added: maps query
                     const taskQuery = `{ 
                         tasks(limit: 1000, lang: ja) { 
-                            id name minPlayerLevel kappaRequired map { id name } trader { name } wikiLink lightkeeperRequired
+                            id name minPlayerLevel kappaRequired map { name } trader { name } wikiLink lightkeeperRequired
                             objectives { description } 
                             startRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } } 
                             finishRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } }
                         }
                         ammo(limit: 200, lang: en) { item { name shortName } caliber damage penetrationPower armorDamage }
-                        maps(lang: ja) { id name wikiLink raidDuration players bosses { name spawnChance locations { name chance } } }
                     }`;
                     
                     const taskData = await this.fetchApiData(taskQuery);
@@ -815,12 +722,9 @@
                         
                         this.data.tasks = taskData.tasks.map(t => ({...t, completed: !!savedStatus[t.id]}));
                         this.data.ammo = taskData.ammo.sort((a, b) => b.penetrationPower - a.penetrationPower);
-                        this.data.maps = taskData.maps.sort((a, b) => a.name.localeCompare(b.name));
-                        
                         this.processTaskMetaData();
                         this.renderTasks();
-                        this.renderAmmo();
-                        this.renderRaidPlanner(); // Initial Render of Raid Planner Maps
+                        this.renderAmmo(); 
                         this.safeUpdateText('dash-task-count', this.data.tasks.length);
                     }
 
@@ -842,7 +746,7 @@
             },
 
             async fetchMarketDataFull() {
-                const gameMode = this.data.config.gameMode; // Use Configured Mode
+                const gameMode = this.data.config.gameMode;
                 
                 const hideoutQuery = `{ hideoutStations(lang: ja) { id name levels { level itemRequirements { count item { id name iconLink } } } } }`;
                 const hideoutData = await this.fetchApiData(hideoutQuery);
@@ -866,20 +770,30 @@
                     }));
                 }
 
-                // DYNAMIC GAME MODE QUERY
+                // CRITICAL UPDATE v0.61: Using priceRUB for accurate currency conversion
                 const marketQuery = `{ 
                     items(gameMode: ${gameMode}, limit: 3500, offset: 0, types: [${this.consts.globalTypes.join(', ')}], lang: ja) {
                         id name shortName avg24hPrice low24hPrice high24hPrice changeLast48hPercent wikiLink types iconLink gridImageLink description
                         sellFor { price source } 
+                        buyFor { priceRUB source vendor { name } requirements { type value } }
                         usedInTasks { id name trader { name } wikiLink }
                         bartersFor { trader { name } level rewardItems { item { name } } }
                     }
                 }`;
                 const marketRes = await this.fetchApiData(marketQuery);
                 if (marketRes) {
-                    this.data.marketItems = marketRes.items.filter(i => i.avg24hPrice > 0).sort((a, b) => b.avg24hPrice - a.avg24hPrice);
+                    this.data.marketItems = marketRes.items.filter(i => i.avg24hPrice > 0 || (i.buyFor && i.buyFor.length > 0)).sort((a, b) => b.avg24hPrice - a.avg24hPrice);
                     this.data.itemPriceMap.clear();
-                    this.data.marketItems.forEach(i => this.data.itemPriceMap.set(i.id, i.avg24hPrice));
+                    this.data.itemFullPriceData.clear(); 
+
+                    this.data.marketItems.forEach(i => {
+                        this.data.itemFullPriceData.set(i.id, {
+                            avg24hPrice: i.avg24hPrice,
+                            buyFor: i.buyFor || []
+                        });
+                        this.data.itemPriceMap.set(i.id, i.avg24hPrice);
+                    });
+                    
                     this.safeUpdateText('dash-market-count', this.data.marketItems.length);
                 }
 
@@ -894,9 +808,14 @@
                 if (craftRes) {
                     this.data.craftMap.clear();
                     this.data.crafts = craftRes.crafts.map(c => {
+                        const cost = c.requiredItems.reduce((acc, req) => {
+                            const bestPrice = this.getBestPrice(req.item.id);
+                            return acc + (bestPrice.price * req.count);
+                        }, 0);
+
                         const rev = c.rewardItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
-                        const cost = c.requiredItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
                         const profit = (rev * 0.9) - cost;
+                        
                         c.requiredItems.forEach(req => {
                             if(!this.data.craftMap.has(req.item.id)) this.data.craftMap.set(req.item.id, []);
                             this.data.craftMap.get(req.item.id).push({ type: 'ingredient', profit, station: c.station.name, level: c.level, products: c.rewardItems });
@@ -911,6 +830,40 @@
                 this.renderWishlist();
             },
             
+            // LOGIC v0.61: Accurate Best Price Calculation
+            getBestPrice(itemId) {
+                const data = this.data.itemFullPriceData.get(itemId);
+                if (!data) return { price: 0, source: 'unknown' };
+
+                let bestPrice = data.avg24hPrice || 999999999;
+                let source = 'flea';
+                let vendor = 'Flea Market';
+
+                if (data.buyFor) {
+                    data.buyFor.forEach(offer => {
+                        if (offer.source === 'fleaMarket') return; 
+                        
+                        const traderName = offer.vendor.name;
+                        const userLL = this.data.config.traderLevels[traderName] || 4; 
+                        
+                        const llReq = offer.requirements.find(r => r.type === 'loyaltyLevel');
+                        const reqLevel = llReq ? llReq.value : 1;
+
+                        if (userLL >= reqLevel) {
+                            if (offer.priceRUB < bestPrice) {
+                                bestPrice = offer.priceRUB;
+                                source = 'trader';
+                                vendor = `${traderName} LL${reqLevel}`;
+                            }
+                        }
+                    });
+                }
+                
+                if (bestPrice === 999999999 && data.avg24hPrice === 0) bestPrice = 0;
+
+                return { price: bestPrice, source, vendor };
+            },
+
             calculateAllRequirements() {
                 this.data.marketItems.forEach(item => {
                     item.reqData = { 
@@ -961,13 +914,28 @@
                 if(this.data.config.gameMode === mode) return;
                 this.data.config.gameMode = mode;
                 this.saveConfig();
-                this.fetchLiveStats(); // Re-sync with new mode
+                this.fetchLiveStats();
             },
             updateTraderLevel(trader, level) {
                 this.data.config.traderLevels[trader] = parseInt(level);
                 this.saveConfig();
-                this.renderMarket(); // Re-render to update barter locks
+                this.recalcCrafts();
+                this.renderMarket();
+                this.renderCrafts();
             },
+            
+            recalcCrafts() {
+                this.data.crafts = this.data.crafts.map(c => {
+                    const cost = c.requiredItems.reduce((acc, req) => {
+                        const bestPrice = this.getBestPrice(req.item.id);
+                        return acc + (bestPrice.price * req.count);
+                    }, 0);
+                    const rev = c.rewardItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
+                    const profit = (rev * 0.9) - cost;
+                    return { ...c, cost, profit };
+                }).sort((a, b) => b.profit - a.profit);
+            },
+
             renderConfigUI() {
                 const radioPve = document.querySelector(`input[name="gameMode"][value="pve"]`);
                 const radioReg = document.querySelector(`input[name="gameMode"][value="regular"]`);
@@ -995,98 +963,6 @@
                         </div>`;
                     }).join('');
                 }
-            },
-
-            // --- RAID PLANNER MODULE (NEW) ---
-            renderRaidPlanner() {
-                const list = document.getElementById('raid-map-list');
-                if (!list) return;
-                
-                if(!this.data.maps || this.data.maps.length === 0) {
-                    list.innerHTML = '<div class="text-xs text-gray-500 px-2">Waiting for Sync...</div>';
-                    return;
-                }
-
-                list.innerHTML = this.data.maps.map(m => `
-                    <button class="map-card shrink-0 bg-black/40 rounded px-4 py-3 flex flex-col items-center justify-center min-w-[80px] hover:text-tarkov-accent ${this.data.currentRaidMapId === m.id ? 'active text-tarkov-accent' : 'text-gray-400'}" 
-                            onclick="app.selectRaidMap('${m.id}')">
-                        <i class="fa-solid fa-map-location-dot text-lg mb-1"></i>
-                        <span class="text-xs font-bold uppercase whitespace-nowrap">${m.name}</span>
-                    </button>
-                `).join('');
-            },
-
-            selectRaidMap(mapId) {
-                this.data.currentRaidMapId = mapId;
-                this.renderRaidPlanner(); // Refresh active state
-                
-                const mapData = this.data.maps.find(m => m.id === mapId);
-                if(!mapData) return;
-
-                // UI Transitions
-                document.getElementById('raid-placeholder').classList.add('hidden');
-                document.getElementById('raid-content').classList.remove('hidden');
-                document.getElementById('raid-content').classList.add('flex');
-                
-                // Update Intel
-                this.safeUpdateText('raid-map-name', mapData.name);
-                this.safeUpdateHTML('raid-time', `<i class="fa-regular fa-clock mr-1"></i> ${mapData.raidDuration || '??'} min`);
-                this.safeUpdateHTML('raid-players', `<i class="fa-solid fa-users mr-1"></i> ${mapData.players || '?-?'}`);
-                const wikiLink = document.getElementById('raid-wiki-link');
-                if(wikiLink) wikiLink.href = mapData.wikiLink || '#';
-
-                // Bosses
-                const bossList = document.getElementById('raid-boss-list');
-                if(bossList) {
-                    if(mapData.bosses && mapData.bosses.length > 0) {
-                        bossList.innerHTML = mapData.bosses.map(b => `
-                            <div class="flex justify-between items-center border-b border-gray-800 pb-1 last:border-0">
-                                <span class="font-bold text-gray-300">${b.name}</span>
-                                <span class="font-mono text-tarkov-orange">${Math.round(b.spawnChance * 100)}%</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        bossList.innerHTML = '<div class="text-gray-600 italic">No significant hostiles reported.</div>';
-                    }
-                }
-
-                // Active Tasks
-                const activeTasks = this.data.tasks.filter(t => !t.completed && t.map && t.map.id === mapId);
-                this.safeUpdateText('raid-task-count', activeTasks.length);
-                
-                const taskList = document.getElementById('raid-task-list');
-                if(taskList) {
-                    if(activeTasks.length === 0) {
-                        taskList.innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-full text-gray-500 opacity-50">
-                                <i class="fa-solid fa-check-circle text-4xl mb-2"></i>
-                                <span>No Active Operations</span>
-                            </div>`;
-                    } else {
-                        taskList.innerHTML = activeTasks.map(t => `
-                            <div class="bg-black/40 rounded p-2 border border-gray-800 hover:border-tarkov-green transition flex gap-3 group">
-                                <div class="pt-1">
-                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-tarkov-green rounded border-gray-600 bg-gray-700 focus:ring-tarkov-green cursor-pointer" 
-                                           onclick="event.stopPropagation(); app.completeRaidTask('${t.id}')">
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex justify-between items-start">
-                                        <div class="text-[10px] text-gray-500 uppercase font-bold">${t.trader.name}</div>
-                                        <a href="${t.wikiLink}" target="_blank" class="text-gray-600 hover:text-white"><i class="fa-solid fa-external-link-alt text-[10px]"></i></a>
-                                    </div>
-                                    <div class="text-sm font-bold text-white truncate mb-1">${t.name}</div>
-                                    <div class="text-xs text-gray-400 leading-tight line-clamp-2">${t.objectives[0]?.description || 'See details...'}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            },
-
-            completeRaidTask(taskId) {
-                // Wrapper to reuse existing logic but refresh Raid view
-                this.toggleTaskCompleted(taskId);
-                this.selectRaidMap(this.data.currentRaidMapId); // Refresh current view
             },
 
             // --- HELPER FUNCTIONS ---
@@ -1135,7 +1011,6 @@
                 this.renderWishlist();
             },
 
-            // --- AMMO VIEWER FUNCTIONS ---
             switchAmmoView(view) {
                 this.data.ammoConfig.view = view;
                 const btnChart = document.getElementById('av-chart');
@@ -1272,7 +1147,6 @@
                 });
             },
 
-            // --- RENDERERS ---
             renderWishlist() {
                 const grid = document.getElementById('wishlist-grid');
                 if(!grid) return;
@@ -1296,7 +1170,6 @@
 
                     const card = document.createElement('div');
                     card.className = 'tarkov-panel rounded p-3 flex items-center justify-between border border-tarkov-border hover:border-tarkov-gold transition';
-                    // LAZY LOAD ADDED
                     card.innerHTML = `
                         <div class="flex items-center gap-3">
                             <img src="${item.iconLink}" loading="lazy" alt="${item.name}" class="w-10 h-10 bg-black rounded border border-gray-800" onerror="this.style.display='none'">
@@ -1342,7 +1215,7 @@
                 const grid = document.getElementById('market-grid');
                 if(!grid) return;
                 grid.innerHTML = '';
-                const display = results.slice(0, 50); // Reduced initial render count for performance
+                const display = results.slice(0, 50); 
                 this.safeUpdateText('market-result-count', `${results.length} RESULTS`);
 
                 if (display.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">NO DATA FOUND</div>'; return; }
@@ -1374,7 +1247,6 @@
                     if(isBarter) badges += `<span class="req-badge req-barter"><i class="fa-solid fa-right-left"></i> BARTER</span>`;
                     if(isCraft) badges += `<span class="req-badge req-craft"><i class="fa-solid fa-wrench"></i> CRAFT</span>`;
 
-                    // CHANGED: div -> button for a11y
                     const card = document.createElement('button');
                     card.className = 'market-card w-full text-left tarkov-panel rounded p-3 relative group touch-manipulation cursor-pointer border border-tarkov-border hover:border-tarkov-blue transition';
                     card.onclick = function(e) { 
@@ -1425,7 +1297,6 @@
                     let acquisitionHtml = '';
                     const barterOffers = this.data.acquisitionMap.get(item.id) || [];
                     barterOffers.forEach(offer => {
-                        // CHECK LOYALTY (SMART FILTERING)
                         const userLL = this.data.config.traderLevels[offer.traderName] || 4;
                         const isLocked = offer.level > userLL;
                         const lockedClass = isLocked ? 'opacity-50 grayscale border-red-900/50' : '';
@@ -1539,429 +1410,35 @@
                         }
                     }
 
-                    // LAZY LOAD ADDED
                     const rewards = craft.rewardItems.map(r => `<div class="flex items-center gap-2 mb-1"><img src="${r.item.iconLink}" loading="lazy" alt="${r.item.name}" class="w-6 h-6 bg-[#222] rounded" onerror="this.style.display='none'"><span class="text-tarkov-gold font-bold text-xs truncate">${r.item.name} x${r.count}</span> ${reqBadges}</div>`).join('');
-                    const reqs = craft.requiredItems.map(r => `<div class="flex justify-between text-[10px] text-gray-400 border-b border-[#222] py-1"><span>${r.item.name}</span><span>x${r.count}</span></div>`).join('');
+                    
+                    // Detailed Requirements rendering with source info
+                    const reqs = craft.requiredItems.map(r => {
+                        const bestPrice = this.getBestPrice(r.item.id);
+                        const sourceClass = bestPrice.source === 'trader' ? 'cost-source-trader' : 'cost-source-flea';
+                        const vendorText = bestPrice.source === 'trader' ? `<i class="fa-solid fa-shop"></i> ${bestPrice.vendor}` : `<i class="fa-solid fa-people-arrows"></i> Flea`;
+                        
+                        return `
+                        <div class="flex justify-between items-center text-[10px] text-gray-400 border-b border-[#222] py-1 last:border-0">
+                            <div class="flex items-center gap-2 truncate flex-1">
+                                <span>${r.item.name}</span>
+                                <span class="text-gray-600">x${r.count}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="block ${sourceClass}">${vendorText}</span>
+                                <span class="font-mono text-[9px]">₽${(bestPrice.price * r.count).toLocaleString()}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
 
                     const card = document.createElement('div');
                     card.className = 'tarkov-panel rounded p-3 flex flex-col relative border-l-4 ' + (craft.profit >= 0 ? 'border-l-green-600' : 'border-l-red-600');
-                    card.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">${craft.station.name} Lv${craft.level}</span><div class="text-right"><span class="block text-xs text-gray-500">PROFIT</span><span class="font-bold font-mono text-lg ${craft.profit >= 0 ? 'profit-pos' : 'profit-neg'}">₽${profitFmt}</span></div></div><div class="mb-3">${rewards}</div><div class="bg-[#111] p-2 rounded border border-[#333]"><div class="flex justify-between text-[10px] text-gray-500 mb-1 border-b border-[#333] pb-1"><span>INGREDIENTS</span><span>COST: ₽${costFmt}</span></div><div class="max-h-24 overflow-y-auto custom-scrollbar">${reqs}</div></div>`;
+                    card.innerHTML = `<div class="flex justify-between items-start mb-2"><span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">${craft.station.name} Lv${craft.level}</span><div class="text-right"><span class="block text-xs text-gray-500">PROFIT</span><span class="font-bold font-mono text-lg ${craft.profit >= 0 ? 'profit-pos' : 'profit-neg'}">₽${profitFmt}</span></div></div><div class="mb-3">${rewards}</div><div class="bg-[#111] p-2 rounded border border-[#333]"><div class="flex justify-between text-[10px] text-gray-500 mb-1 border-b border-[#333] pb-1"><span>INGREDIENTS (Best Source)</span><span>COST: ₽${costFmt}</span></div><div class="max-h-32 overflow-y-auto custom-scrollbar">${reqs}</div></div>`;
                     grid.appendChild(card);
                 });
-            },
-
-            // --- HIDEOUT MANAGER ---
-            renderHideout() {
-                const grid = document.getElementById('hideout-grid');
-                if(!grid) return;
-                
-                const stations = this.data.hideoutStationsRaw;
-                if (!stations || stations.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Waiting for Data...</div>'; return; }
-
-                stations.sort((a, b) => a.name.localeCompare(b.name));
-                grid.innerHTML = '';
-                
-                let totalStations = stations.length;
-                let maxLevelSum = 0;
-                let currentLevelSum = 0;
-
-                stations.forEach(station => {
-                    const savedLevel = this.data.userHideoutLevels[station.id] || 0;
-                    const maxLevel = Math.max(...station.levels.map(l => l.level));
-                    maxLevelSum += maxLevel;
-                    currentLevelSum += savedLevel;
-                    
-                    const nextLevel = savedLevel + 1;
-                    const nextLevelData = station.levels.find(l => l.level === nextLevel);
-                    const isMaxed = savedLevel >= maxLevel;
-
-                    let reqHtml = '';
-                    if (isMaxed) {
-                        reqHtml = `<div class="text-tarkov-green text-xs font-bold text-center py-4 bg-green-900/10 rounded border border-green-900/30">MAX LEVEL REACHED</div>`;
-                    } else if (nextLevelData) {
-                        // LAZY LOAD ADDED
-                        const items = nextLevelData.itemRequirements.map(req => `<div class="flex items-center gap-2 bg-[#111] p-1.5 rounded border border-[#333]"><img src="${req.item.iconLink}" loading="lazy" alt="${req.item.name}" class="w-6 h-6 object-contain bg-[#222] rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-[10px] text-gray-300 truncate">${req.item.name}</div><div class="text-[9px] text-gray-500">x${req.count}</div></div></div>`).join('');
-                        reqHtml = `<div class="space-y-1 mt-2 mb-1"><div class="text-[9px] text-gray-500 uppercase">Requirements for Lv${nextLevel}</div><div class="grid grid-cols-2 gap-1">${items}</div></div>`;
-                    } else { reqHtml = `<div class="text-gray-500 text-xs text-center py-4">Data not available</div>`; }
-
-                    const card = document.createElement('div');
-                    card.className = `tarkov-panel rounded p-3 border ${isMaxed ? 'border-tarkov-green/30' : 'border-tarkov-border'} flex flex-col`;
-                    card.innerHTML = `<div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm ${isMaxed ? 'text-tarkov-green' : 'text-gray-200'} truncate pr-2">${station.name}</h3><div class="flex items-center gap-1 bg-[#111] rounded p-1 border border-[#333]"><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', -1)" ${savedLevel <= 0 ? 'disabled' : ''}>-</button><span class="w-8 text-center font-mono font-bold ${isMaxed ? 'text-tarkov-green' : 'text-white'}">${savedLevel}</span><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', 1)" ${isMaxed ? 'disabled' : ''}>+</button></div></div><div class="flex-1">${reqHtml}</div>`;
-                    grid.appendChild(card);
-                });
-
-                const progress = totalStations > 0 ? Math.round((currentLevelSum / maxLevelSum) * 100) : 0;
-                this.safeUpdateHTML('dash-hideout-count', `${progress}%`);
-                document.getElementById('hideout-progress-text').innerText = `${progress}% Completed`;
-                document.getElementById('hideout-progress-bar').style.width = `${progress}%`;
-            },
-
-            updateHideoutLevel(stationId, change) {
-                const stations = this.data.hideoutStationsRaw;
-                const station = stations.find(s => s.id === stationId);
-                if (!station) return;
-                const maxLevel = Math.max(...station.levels.map(l => l.level));
-                let current = this.data.userHideoutLevels[stationId] || 0;
-                let next = current + change;
-                if (next < 0) next = 0;
-                if (next > maxLevel) next = maxLevel;
-                this.data.userHideoutLevels[stationId] = next;
-                this.saveHideoutStatus();
-                this.calculateAllRequirements(); 
-                this.renderHideout();
-                this.renderMarket();
-            },
-
-            loadHideoutStatus() { const s = localStorage.getItem('userHideoutLevels'); if (s) { try { this.data.userHideoutLevels = JSON.parse(s); } catch (e) { this.data.userHideoutLevels = {}; } } },
-            saveHideoutStatus() { localStorage.setItem('userHideoutLevels', JSON.stringify(this.data.userHideoutLevels)); },
-
-            // --- GUNSMITH MODULE ---
-            async fetchWeaponData() {
-                const query = `{ items(types: [gun], lang: ja) { id name shortName types } }`;
-                const data = await this.fetchApiData(query);
-                if (data && data.items) {
-                    this.data.weapons = data.items.filter((v,i,a)=>a.findIndex(t=>(t.id === v.id))===i).sort((a, b) => a.name.localeCompare(b.name));
-                    this.setupGunsmith();
-                }
-            },
-
-            setupGunsmith() {
-                const select = document.getElementById('gs-weapon');
-                if(!select) return;
-                if (this.data.weapons.length === 0) { select.innerHTML = `<option value="">Waiting for Sync...</option>`; return; }
-                const groups = this.data.weapons.reduce((g, w) => {
-                    const fam = w.shortName ? w.shortName.split(' ')[0] : 'Other';
-                    if (!g[fam]) g[fam] = [];
-                    g[fam].push(w);
-                    return g;
-                }, {});
-                let opts = `<option value="">Select Weapon...</option>`;
-                for (const gn in groups) {
-                    opts += `<optgroup label="${gn}">`;
-                    groups[gn].forEach(w => opts += `<option value="${w.id}">${w.name}</option>`); 
-                    opts += `</optgroup>`;
-                }
-                select.innerHTML = opts;
-            },
-
-            async buildGun(id) {
-                if (!id) return;
-                this.safeUpdateHTML('gs-builder-area', '<div class="flex justify-center py-10 opacity-50"><div class="loader"></div></div>');
-                this.safeUpdateText('gs-stat-ergo', '-');
-                this.safeUpdateText('gs-stat-recoil', '-');
-                const query = `{ 
-                    items(ids: ["${id}"], lang: ja) {
-                        id name shortName description basePrice width height inspectImageLink gridImageLink
-                        properties { 
-                            ... on ItemPropertiesWeapon { 
-                                ergonomics recoilVertical recoilHorizontal fireRate caliber
-                                defaultPreset { inspectImageLink gridImageLink } 
-                                slots {
-                                    name
-                                    filters { allowedItems { id name shortName gridImageLink properties { ... on ItemPropertiesWeaponMod { ergonomics recoilModifier } } } }
-                                }
-                            }
-                        }
-                    }
-                }`;
-                const data = await this.fetchApiData(query);
-                if (data && data.items && data.items.length > 0) {
-                    this.data.currentBuild = { baseWeapon: data.items[0], attachedParts: [] };
-                    this.renderGunBuilder(this.data.currentBuild);
-                } else {
-                    this.showToast("Failed to load weapon details");
-                    this.safeUpdateHTML('gs-builder-area', '<div class="text-center text-red-500 py-10">Error loading weapon data</div>');
-                }
-            },
-
-            disassemble() {
-                if (!this.data.currentBuild) { this.showToast("Select a weapon first"); return; }
-                this.data.currentBuild.attachedParts = [];
-                this.renderGunBuilder(this.data.currentBuild);
-                this.showToast("Weapon Disassembled");
-            },
-
-            autoAssemble() {
-                if (!this.data.currentBuild) { this.showToast("Select a weapon first"); return; }
-                const targetErgo = parseFloat(document.getElementById('gs-target-ergo').value);
-                const hasTarget = !isNaN(targetErgo);
-                this.showToast(hasTarget ? `Targeting Ergo ~${targetErgo}...` : "Auto-Building (Max Ergo)...");
-                const baseWeapon = this.data.currentBuild.baseWeapon;
-                const slots = baseWeapon.properties?.slots || [];
-                this.data.currentBuild.attachedParts = [];
-                const getItems = (slot) => {
-                    if (!slot.filters) return [];
-                    if (Array.isArray(slot.filters)) { return slot.filters[0] && slot.filters[0].allowedItems ? slot.filters[0].allowedItems : []; }
-                    if (slot.filters.allowedItems) return slot.filters.allowedItems;
-                    return [];
-                };
-                if (hasTarget) {
-                    const slotCandidates = slots.map(slot => {
-                        const items = getItems(slot);
-                        if (!items || items.length === 0) return { slotName: slot.name, items: [] };
-                        return { slotName: slot.name, items: items.sort((a, b) => (b.properties?.ergonomics || 0) - (a.properties?.ergonomics || 0)) };
-                    });
-                    const currentParts = slotCandidates.map(sc => sc.items[0]).filter(p => p); 
-                    const calcErgo = (parts) => {
-                        let e = baseWeapon.properties?.ergonomics || 0;
-                        parts.forEach(p => e += (p.properties?.ergonomics || 0));
-                        return e;
-                    };
-                    let currentTotal = calcErgo(currentParts);
-                    let improved = true;
-                    let loops = 0;
-                    while (improved && currentTotal > targetErgo && loops < 50) {
-                        improved = false;
-                        loops++;
-                        let bestSwap = null;
-                        let minDiff = Math.abs(currentTotal - targetErgo);
-                        for (let i = 0; i < slotCandidates.length; i++) {
-                            const sc = slotCandidates[i];
-                            const currentPart = currentParts.find(p => sc.items.includes(p)); 
-                            if (!currentPart) continue; 
-                            const currentIndex = sc.items.indexOf(currentPart); 
-                            if (currentIndex + 1 < sc.items.length) {
-                                const nextPart = sc.items[currentIndex + 1];
-                                const ergoDiff = (currentPart.properties?.ergonomics || 0) - (nextPart.properties?.ergonomics || 0);
-                                const newTotal = currentTotal - ergoDiff;
-                                const diff = Math.abs(newTotal - targetErgo);
-                                if (diff < minDiff) { minDiff = diff; bestSwap = { index: i, oldPart: currentPart, newPart: nextPart, newTotal: newTotal }; }
-                            }
-                        }
-                        if (bestSwap) {
-                            const oldIdx = currentParts.indexOf(bestSwap.oldPart);
-                            if (oldIdx > -1) { currentParts[oldIdx] = bestSwap.newPart; currentTotal = bestSwap.newTotal; improved = true; }
-                        }
-                    }
-                    currentParts.forEach(p => {
-                        const candidate = slotCandidates.find(sc => sc.items.includes(p));
-                        if(candidate) { this.data.currentBuild.attachedParts.push({ slotName: candidate.slotName, part: p }); }
-                    });
-                } else {
-                    slots.forEach(slot => {
-                        let items = getItems(slot);
-                        if (!items || items.length === 0) return;
-                        items.sort((a, b) => (b.properties?.ergonomics || 0) - (a.properties?.ergonomics || 0));
-                        const bestPart = items[0];
-                        if (bestPart) { this.data.currentBuild.attachedParts.push({ slotName: slot.name, part: bestPart }); }
-                    });
-                }
-                this.renderGunBuilder(this.data.currentBuild);
-                this.showToast("Assembly Complete");
-            },
-
-            renderGunBuilder(build) {
-                const item = build.baseWeapon;
-                const props = item.properties || {};
-                let ergo = props.ergonomics || 0;
-                let recoil = props.recoilVertical || 0;
-                let modSum = 0;
-                build.attachedParts.forEach(ap => {
-                    const pProps = ap.part.properties || {};
-                    if(pProps.ergonomics) ergo += pProps.ergonomics;
-                    if(pProps.recoilModifier) modSum += pProps.recoilModifier;
-                });
-                const finalRecoil = recoil * (1 + (modSum / 100));
-                this.safeUpdateText('gs-stat-ergo', Math.round(ergo));
-                this.safeUpdateText('gs-stat-recoil', Math.round(finalRecoil));
-                let imgUrl = item.properties?.defaultPreset?.inspectImageLink || item.inspectImageLink || item.gridImageLink || '';
-                let caliber = props.caliber ? props.caliber.replace('Caliber', '') : 'Unknown';
-                let html = `
-                    <div class="glass-panel p-4 md:p-6 rounded animate-fade-in relative overflow-hidden group">
-                        <div class="absolute -top-6 -right-6 text-9xl font-bold text-white opacity-[0.03] select-none pointer-events-none transition-transform group-hover:scale-110 duration-700">${item.shortName}</div>
-                        <div class="flex flex-col md:flex-row gap-6 items-start relative z-10">
-                            <div class="w-full md:w-5/12">
-                                <div class="bg-black/20 rounded-lg p-6 border border-gray-800 flex items-center justify-center min-h-[200px] relative">
-                                    <img src="${imgUrl}" loading="lazy" alt="${item.name}" class="w-full h-auto object-contain drop-shadow-2xl" onerror="this.src='https://via.placeholder.com/200x100?text=No+Image'">
-                                </div>
-                                <div class="mt-3 flex justify-between text-[10px] text-gray-500 font-mono px-1"><span>${item.width}x${item.height}CELLS</span><span>${caliber}</span></div>
-                            </div>
-                            <div class="w-full md:w-7/12 space-y-5">
-                                <div>
-                                    <h3 class="text-xl md:text-2xl font-bold text-white leading-tight font-mono">${item.name}</h3>
-                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                                        <div class="bg-[#0a0a0a] p-2 rounded border border-gray-800"><div class="text-[9px] text-gray-500">RPM</div><div class="text-tarkov-green font-mono font-bold">${props.fireRate || '-'}</div></div>
-                                        <div class="bg-[#0a0a0a] p-2 rounded border border-gray-800"><div class="text-[9px] text-gray-500">H. RECOIL</div><div class="text-gray-300 font-mono">${props.recoilHorizontal || '-'}</div></div>
-                                    </div>
-                                </div>
-                                <div class="border-t border-gray-800 pt-4">
-                                    <h4 class="text-xs text-gray-500 uppercase font-bold mb-2">Available Slots</h4>
-                                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                                        ${(props.slots || []).map(slot => {
-                                            const attached = build.attachedParts.find(p => p.slotName === slot.name);
-                                            return `<div class="bg-black/40 p-2 rounded border border-gray-800 flex justify-between items-center group/slot"><span class="text-xs text-gray-400 font-mono">${slot.name}</span><div class="flex items-center gap-2">${attached ? `<span class="text-tarkov-accent text-xs truncate max-w-[150px]" title="${attached.part.name}">${attached.part.name}</span><button class="text-red-500 hover:text-red-400" onclick="app.removePart('${slot.name}')"><i class="fa-solid fa-times"></i></button>` : `<button class="text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300" onclick='app.showParts("${slot.name}")'>Select Part</button>`}</div></div>`;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="gs-part-selector" class="hidden mt-4 border-t border-gray-700 pt-4 animate-fade-in scroll-mt-20"><div class="flex justify-between items-center mb-2"><h4 class="text-xs text-tarkov-accent uppercase font-bold">Select Part</h4><button onclick="document.getElementById('gs-part-selector').classList.add('hidden')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div id="gs-part-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar"></div></div>
-                    </div>
-                `;
-                this.safeUpdateHTML('gs-builder-area', html);
-            },
-
-            showParts(slotName) {
-                const container = document.getElementById('gs-part-selector');
-                const list = document.getElementById('gs-part-list');
-                const title = container.querySelector('h4'); 
-                container.classList.remove('hidden');
-                const slot = this.data.currentBuild.baseWeapon.properties.slots.find(s => s.name === slotName);
-                if(title) title.innerText = `Select Part: ${slotName}`;
-                let items = [];
-                if (slot && slot.filters) {
-                    if (Array.isArray(slot.filters)) { items = slot.filters[0] ? slot.filters[0].allowedItems : []; } 
-                    else if (slot.filters.allowedItems) { items = slot.filters.allowedItems; }
-                }
-                if(!items || items.length === 0) {
-                    list.innerHTML = '<div class="col-span-full text-center text-gray-500 py-4">No compatible parts found for this slot.</div>';
-                    setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-                    return;
-                }
-                this.data.currentSlotCandidates = items;
-                // LAZY LOAD ADDED
-                list.innerHTML = items.map(p => `<div class="bg-[#0f0f0f] border border-gray-800 p-2 rounded hover:border-tarkov-accent cursor-pointer flex flex-col items-center gap-1 group transition-all hover:bg-white/5" onclick='app.attachPart("${slotName}", "${p.id}")' title="${p.name}"><img src="${p.gridImageLink}" loading="lazy" alt="${p.name}" class="w-12 h-12 object-contain group-hover:scale-110 transition" onerror="this.style.opacity=0.3"><span class="text-[10px] text-gray-400 text-center truncate w-full group-hover:text-white">${p.name}</span></div>`).join('');
-                setTimeout(() => { container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
-            },
-
-            attachPart(slotName, partId) {
-                const part = this.data.currentSlotCandidates.find(p => p.id === partId);
-                if (!part) return;
-                this.data.currentBuild.attachedParts = this.data.currentBuild.attachedParts.filter(p => p.slotName !== slotName);
-                this.data.currentBuild.attachedParts.push({ slotName, part });
-                this.renderGunBuilder(this.data.currentBuild);
-            },
-
-            removePart(slotName) {
-                this.data.currentBuild.attachedParts = this.data.currentBuild.attachedParts.filter(p => p.slotName !== slotName);
-                this.renderGunBuilder(this.data.currentBuild);
-            },
-
-            // --- GENERAL & HELPERS ---
-            processTaskMetaData() {
-                const traderSet = new Set();
-                const mapSet = new Set();
-                this.data.tasks.forEach(t => {
-                    if(t.trader?.name) traderSet.add(t.trader.name);
-                    if(t.map?.name) mapSet.add(t.map.name);
-                });
-                const trSelect = document.getElementById('filter-trader');
-                if(trSelect) trSelect.innerHTML = '<option value="all">全トレーダー</option>' + Array.from(traderSet).sort().map(t => `<option value="${t}">${t}</option>`).join('');
-                const mapSelect = document.getElementById('filter-map');
-                if(mapSelect) mapSelect.innerHTML = '<option value="all">全マップ</option>' + Array.from(mapSet).sort().map(m => `<option value="${m}">${m}</option>`).join('');
-            },
-
-            renderTasks() {
-                const searchInput = document.getElementById('task-search');
-                const search = searchInput ? searchInput.value.toLowerCase() : '';
-                const trader = document.getElementById('filter-trader')?.value || 'all';
-                const map = document.getElementById('filter-map')?.value || 'all';
-                const type = document.getElementById('filter-type')?.value || 'all';
-                const hideCompleted = document.getElementById('hide-completed')?.checked || false;
-                const sortBy = document.getElementById('sort-by')?.value || 'minPlayerLevel';
-
-                let filtered = this.data.tasks.filter(t => {
-                    const searchTargets = [ t.name, t.map?.name || '', t.trader?.name || '', ...(t.objectives?.map(o => o.description) || []), ...(t.startRewards?.items?.map(i => i.item.name) || []), ...(t.finishRewards?.items?.map(i => i.item.name) || []) ].map(s => (s || '').toLowerCase());
-                    const mSearch = searchTargets.some(s => s.includes(search));
-                    const mTrader = trader === 'all' || t.trader?.name === trader;
-                    const mMap = map === 'all' || t.map?.name === map; 
-                    let mType = true;
-                    if (type === 'kappa') mType = t.kappaRequired;
-                    if (type === 'lightkeeper') mType = t.lightkeeperRequired;
-                    return mSearch && mTrader && mMap && mType;
-                });
-
-                if (hideCompleted) filtered = filtered.filter(t => !t.completed);
-                filtered.sort((a, b) => {
-                    let valA, valB;
-                    if (sortBy === 'trader') { valA = a.trader?.name || ''; valB = b.trader?.name || ''; } 
-                    else if (sortBy === 'name') { valA = a.name; valB = b.name; } 
-                    else { valA = a.minPlayerLevel || 0; valB = b.minPlayerLevel || 0; }
-                    if (typeof valA === 'string') return valA.localeCompare(valB);
-                    return valA - valB;
-                });
-
-                const list = document.getElementById('task-list');
-                if (filtered.length === 0) { list.innerHTML = `<div class="text-center text-gray-500 py-10">No tasks match your criteria.</div>`; return; }
-
-                list.innerHTML = filtered.slice(0, search ? 100 : 50).map(t => {
-                    let rewardsHtml = '';
-                    const processRew = (rew, type) => {
-                        if(!rew) return '';
-                        let html = '';
-                        if(rew.traderStanding) rew.traderStanding.forEach(r => html += `<li>${r.trader.name}: ${r.standing}</li>`);
-                        if(rew.items) rew.items.forEach(i => html += `<li class="flex items-center gap-2 mb-1"><img src="${i.item.gridImageLink || ''}" loading="lazy" class="w-5 h-5 object-contain bg-black/50 rounded" onerror="this.style.display='none'"><span>${i.item.name} x${i.count}</span></li>`);
-                        return html ? `<div class="mt-2"><h4 class="text-xs font-bold text-gray-500 uppercase">${type}</h4><ul class="list-none text-xs text-gray-400">${html}</ul></div>` : '';
-                    };
-                    rewardsHtml += processRew(t.startRewards, 'Start Rewards');
-                    rewardsHtml += processRew(t.finishRewards, 'Finish Rewards');
-                    
-                    let sherpaData = this.consts.sherpaIntelDB[t.name];
-                    let sherpaAdvice = "";
-                    if (sherpaData) {
-                        sherpaAdvice = sherpaData.desc || sherpaData;
-                        if(sherpaData.tips && sherpaData.tips.length > 0) { sherpaAdvice += `<ul class="list-none mt-2 space-y-1">${sherpaData.tips.map(tip => `<li class="text-xs text-blue-300"><i class="fa-solid fa-angle-right mr-1"></i>${tip}</li>`).join('')}</ul>`; }
-                    } else { sherpaAdvice = "No specific advice available."; }
-
-                    // Changed div to button for accessibility
-                    return `
-                    <div class="glass-panel rounded overflow-hidden border-l-2 ${t.kappaRequired ? 'border-tarkov-accent' : 'border-gray-600'}">
-                        <button class="task-accordion-header w-full text-left p-3 flex flex-col sm:flex-row sm:items-center gap-2 cursor-pointer hover:bg-white/5" aria-expanded="false" data-task-id="${t.id}" onclick="app.toggleTaskAccordion(this)">
-                            <input type="checkbox" class="form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent" onclick="event.stopPropagation(); app.toggleTaskCompleted('${t.id}')" ${t.completed ? 'checked' : ''}>
-                            <div class="flex-1">
-                                <div class="text-[10px] text-gray-500 uppercase flex items-center gap-2"><span>${t.trader?.name}</span>${t.minPlayerLevel ? '<span class="bg-gray-800 px-1 rounded">Lvl '+t.minPlayerLevel+'</span>' : ''}</div>
-                                <div class="font-bold text-sm text-gray-200">${t.name}</div>
-                                <div class="text-xs text-gray-500"><i class="fa-solid fa-map-location-dot mr-1"></i>${t.map?.name || 'Any'}</div>
-                            </div>
-                            <div class="flex items-center gap-3 mt-2 sm:mt-0">
-                                ${t.kappaRequired ? '<span class="px-2 py-0.5 bg-yellow-900/40 text-tarkov-accent text-[10px] font-bold rounded border border-yellow-800/50">KAPPA</span>' : ''}
-                                <i class="task-accordion-icon fa-solid fa-chevron-down transform transition-transform duration-300 ml-auto"></i>
-                            </div>
-                        </button>
-                        <div class="task-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out bg-black/20">
-                            <div class="p-4 border-t border-gray-800 space-y-4">
-                                <div><h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Objectives</h3><ul class="list-disc pl-4 space-y-1 text-sm text-gray-300">${t.objectives?.map(o => `<li>${o.description}</li>`).join('') || '<li>Check wiki</li>'}</ul></div>
-                                ${rewardsHtml}
-                                <div class="bg-blue-900/10 border-l-4 border-blue-600 p-3">
-                                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-1">Sherpa Advice</h3>
-                                    <div class="text-sm text-gray-300 leading-relaxed">${sherpaAdvice}</div>
-                                </div>
-                                <div class="pt-2"><a href="${t.wikiLink || '#'}" target="_blank" class="text-sm text-tarkov-accent hover:underline flex items-center gap-2">Wiki Link <i class="fa-solid fa-external-link-alt"></i></a></div>
-                            </div>
-                        </div>
-                    </div>`;
-                }).join('');
-            },
-
-            // --- UTILITIES ---
-            switchTab(id) {
-                ['dashboard', 'tasks', 'gunsmith', 'hideout', 'ammo', 'market', 'wishlist', 'settings', 'raid'].forEach(t => document.getElementById(`view-${t}`)?.classList.add('hidden'));
-                document.getElementById(`view-${id}`).classList.remove('hidden');
-                document.querySelectorAll('.nav-btn-desktop').forEach(b => {
-                    const active = b.dataset.target === id;
-                    b.classList.toggle('bg-tarkov-border', active);
-                    b.classList.toggle('text-tarkov-accent', active);
-                    b.classList.toggle('border-tarkov-accent', active);
-                    b.classList.toggle('border-transparent', !active);
-                });
-                document.querySelectorAll('.nav-btn-mobile').forEach(b => {
-                    const active = b.dataset.target === id;
-                    b.classList.toggle('mobile-nav-active', active);
-                    b.classList.toggle('text-gray-500', !active);
-                });
-                // Shortcuts handling
-                document.querySelectorAll('.nav-btn-shortcut').forEach(b => {
-                     const active = b.dataset.target === id;
-                     if(active) {
-                        // Optional: Highlight shortcut button if needed
-                     }
-                });
-
-                document.getElementById('main-content').scrollTop = 0;
             },
 
             setupListeners() {
-                // FIXED: Event Delegation for static buttons
                 const syncBtn = document.getElementById('sync-btn');
                 if(syncBtn) syncBtn.addEventListener('click', () => this.fetchLiveStats());
 
@@ -1974,7 +1451,6 @@
                 });
 
                 document.querySelectorAll('.filter-toggle-btn').forEach(btn => {
-                    // Determine if market or craft filter
                     if(btn.id.includes('craft')) {
                          btn.addEventListener('click', (e) => this.toggleCraftFilter(e.currentTarget.dataset.filter));
                     } else {
@@ -1982,7 +1458,6 @@
                     }
                 });
 
-                // Settings: Game Mode Radio
                 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
                     radio.addEventListener('change', (e) => this.updateGameMode(e.target.value));
                 });
@@ -2007,7 +1482,6 @@
                 const gsAuto = document.getElementById('gs-auto');
                 if(gsAuto) gsAuto.addEventListener('click', () => this.autoAssemble());
 
-                // Apply debounce to searches
                 ['task-search', 'market-search', 'craft-search'].forEach(id => {
                     const el = document.getElementById(id);
                     if(el) {
