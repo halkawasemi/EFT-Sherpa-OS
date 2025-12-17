@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>EFT Sherpa OS v0.62</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tarkov: {
+                            bg: '#0f0f0f',
+                            panel: '#151515',
+                            border: '#333333',
+                            text: '#cccccc',
+                            accent: '#9a8c7d', 
+                            accentHover: '#b09b75',
+                            green: '#4ade80',
+                            red: '#ef4444',
+                            orange: '#f97316',
+                            gold: '#ffd700',
+                            blue: '#4a6fa5'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { background-color: #050505; color: #d4d4d4; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+        
+        /* CRT Overlay */
+        .crt-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .glass-panel { background: rgba(26, 26, 26, 0.95); border: 1px solid #333; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+        .status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .loader { border: 2px solid #333; border-top: 2px solid #9a8c7d; border-radius: 50%; width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Animation */
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Mobile Nav Active State */
+        .mobile-nav-active { color: #9a8c7d; border-top: 2px solid #9a8c7d; background: linear-gradient(to bottom, rgba(154, 140, 125, 0.1), transparent); }
+
+        /* --- Market Monitor Specific Styles --- */
+        .req-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; transition: all 0.3s; }
+        
+        /* Active States */
+        .req-quest { background: rgba(234, 179, 8, 0.2); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4); }
+        .req-hideout { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .req-barter { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
+        .req-craft { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        
+        /* Phase 3: Inactive/Completed States */
+        .req-done { background: rgba(60, 60, 60, 0.2); color: #666; border: 1px solid rgba(60, 60, 60, 0.4); opacity: 0.6; }
+        .req-done-text { text-decoration: line-through; opacity: 0.6; }
+        
+        .profit-pos { color: #4ade80; }
+        .profit-neg { color: #ef4444; }
+        
+        /* Market Accordion */
+        .detail-section { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, margin-top 0.3s; }
+        .market-card.expanded .detail-section { max-height: 2000px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #444; }
+        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
+        
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Market Tab Navigation */
+        .market-nav-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; font-size: 0.8rem; background: transparent; }
+        .market-nav-tab:hover { background: rgba(255,255,255,0.05); }
+        .market-nav-tab.active { color: #9a8c7d; border-bottom-color: #9a8c7d; background: linear-gradient(to top, rgba(154, 140, 125, 0.1), transparent); }
+        
+        /* Hideout Specific */
+        .hideout-level-btn { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; transition: all 0.2s; }
+        .hideout-level-btn:hover:not(:disabled) { background: #333; color: #fff; }
+        .hideout-level-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Filter Checkbox Button Style */
+        .filter-toggle-btn {
+            font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .filter-toggle-btn.active {
+            background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d;
+        }
+        .filter-toggle-btn:hover:not(.active) { background: #252525; color: #aaa; }
+        
+        /* Ammo Filter Buttons (v0.62 New) */
+        .ammo-filter-btn {
+            padding: 4px 12px; font-size: 0.75rem; border: 1px solid #333; background: #151515; color: #666; border-radius: 4px; transition: all 0.2s; font-weight: bold; display: flex; align-items: center; gap: 6px;
+        }
+        .ammo-filter-btn:hover { background: rgba(255,255,255,0.05); color: #999; }
+        .ammo-filter-btn.active { border-color: currentColor; background: rgba(255,255,255,0.1); }
+        
+        .ammo-filter-btn.trader.active { color: #4ade80; border-color: #4ade80; }
+        .ammo-filter-btn.flea.active { color: #f97316; border-color: #f97316; }
+        .ammo-filter-btn.na.active { color: #ef4444; border-color: #ef4444; }
+
+        /* Safe Area for iPhone */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Wishlist Star */
+        .wishlist-star { cursor: pointer; transition: transform 0.2s; }
+        .wishlist-star:hover { transform: scale(1.2); }
+        .wishlist-star.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+
+        /* Settings specific */
+        .trader-avatar-box { position: relative; }
+        .trader-avatar-box img { filter: grayscale(100%); transition: all 0.3s; }
+        .trader-avatar-box.active img { filter: grayscale(0%); }
+        .trader-level-selector select { appearance: none; text-align: center; }
+        
+        /* Craft Cost Detail */
+        .cost-source-trader { color: #4ade80; }
+        .cost-source-flea { color: #f97316; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden relative text-sm md:text-base">
+    
+    <div class="crt-overlay fixed inset-0 h-full w-full pointer-events-none"></div>
+
+    <!-- Header -->
+    <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
+        <div class="flex items-center gap-2 md:gap-3">
+            <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
+            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.62 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
+        </div>
+        
+        <div class="flex items-center gap-2 md:gap-4">
+            <button id="sync-btn" class="text-xs flex items-center gap-2 bg-tarkov-border hover:bg-gray-700 transition px-3 py-2 rounded text-gray-300 border border-tarkov-border active:scale-95">
+                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">SYNC</span>
+            </button>
+            <button class="nav-btn-shortcut text-gray-400 hover:text-white transition px-2 py-2" data-target="settings" title="Settings">
+                <i class="fa-solid fa-gear text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Sidebar (PC) -->
+        <nav class="w-64 bg-tarkov-panel border-r border-tarkov-border flex flex-col z-30 hidden md:flex">
+            <div class="p-4 border-b border-tarkov-border">
+                <div class="text-xs text-gray-500 uppercase font-bold mb-2">Command</div>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 bg-tarkov-border text-tarkov-accent border-l-2 border-tarkov-accent font-medium" data-target="dashboard">
+                    <i class="fa-solid fa-chart-line w-6 text-center"></i> Dashboard
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="market">
+                    <i class="fa-solid fa-shop w-6 text-center"></i> Market & Craft
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="wishlist">
+                    <i class="fa-solid fa-star w-6 text-center"></i> Wishlist
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="tasks">
+                    <i class="fa-solid fa-list-check w-6 text-center"></i> Task Database
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="hideout">
+                    <i class="fa-solid fa-dungeon w-6 text-center"></i> Hideout Manager
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="gunsmith">
+                    <i class="fa-solid fa-gun w-6 text-center"></i> Gunsmith
+                </button>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="ammo">
+                    <i class="fa-solid fa-bullseye w-6 text-center"></i> Ballistics Live
+                </button>
+                <div class="my-2 border-t border-gray-800"></div>
+                <button class="nav-btn-desktop w-full text-left px-3 py-2 rounded mb-1 hover:bg-white/5 text-gray-400 border-l-2 border-transparent" data-target="settings">
+                    <i class="fa-solid fa-gear w-6 text-center"></i> System Config
+                </button>
+            </div>
+            
+            <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">
+                INTEGRATED SYSTEM<br>
+                v0.62 (VISUALIZED)
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 bg-tarkov-bg overflow-y-auto p-4 md:p-6 pb-32 md:pb-6 relative scroll-smooth" id="main-content">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">DB Status</div>
+                        <div class="text-sm md:text-base font-bold text-gray-500 mt-1" id="dash-status">Offline</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Live Tasks</div>
+                        <div class="text-xl md:text-2xl font-bold text-white mt-1" id="dash-task-count">0</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Market Intel</div>
+                        <div class="text-xl md:text-2xl font-bold text-tarkov-blue mt-1" id="dash-market-count">0</div>
+                    </div>
+                    <div class="glass-panel p-3 md:p-4 rounded">
+                        <div class="text-gray-400 text-[10px] md:text-xs uppercase">Hideout</div>
+                        <div class="text-xl md:text-2xl font-bold text-tarkov-green mt-1" id="dash-hideout-count">0%</div>
+                    </div>
+                </div>
+
+                <!-- Shortcuts -->
+                <div class="glass-panel p-4 md:p-6 rounded border border-dashed border-gray-700">
+                    <h2 class="text-lg md:text-xl text-white mb-2"><i class="fa-solid fa-rocket mr-2"></i>Quick Access</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button class="nav-btn-shortcut flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-tarkov-blue transition text-left w-full" data-target="market">
+                            <div class="bg-tarkov-blue/20 p-2 rounded text-tarkov-blue"><i class="fa-solid fa-shop"></i></div>
+                            <div>
+                                <div class="text-sm font-bold text-gray-200">Market Monitor</div>
+                                <div class="text-xs text-gray-500">市場価格・クラフト利益 (LL考慮済)</div>
+                            </div>
+                        </button>
+                        <button class="nav-btn-shortcut flex items-center gap-3 bg-black/40 p-3 rounded hover:bg-white/5 border border-gray-800 hover:border-red-500 transition text-left w-full" data-target="ammo">
+                            <div class="bg-red-900/20 p-2 rounded text-red-500"><i class="fa-solid fa-bullseye"></i></div>
+                            <div>
+                                <div class="text-sm font-bold text-gray-200">Ballistics Live</div>
+                                <div class="text-xs text-gray-500">弾薬性能・入手価格可視化</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: SETTINGS -->
+            <div id="view-settings" class="hidden space-y-4 md:space-y-6 animate-fade-in">
+                <div class="bg-tarkov-panel border border-tarkov-border p-4 md:p-6 rounded shadow-lg">
+                    <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-gear mr-2 text-gray-400"></i>SYSTEM CONFIG</h2>
+                    
+                    <!-- Game Mode -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-tarkov-accent uppercase mb-3 border-b border-gray-800 pb-2">Game Mode</h3>
+                        <div class="flex gap-4">
+                            <label class="cursor-pointer flex items-center gap-2 bg-black/40 p-3 rounded border border-gray-700 hover:border-gray-500 transition w-full md:w-auto">
+                                <input type="radio" name="gameMode" value="pve" class="form-radio text-tarkov-accent focus:ring-tarkov-accent">
+                                <div>
+                                    <div class="font-bold text-white">PvE Zone</div>
+                                    <div class="text-xs text-gray-500">AI PMC Only. Market prices vary.</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2 bg-black/40 p-3 rounded border border-gray-700 hover:border-gray-500 transition w-full md:w-auto">
+                                <input type="radio" name="gameMode" value="regular" class="form-radio text-tarkov-red focus:ring-tarkov-red">
+                                <div>
+                                    <div class="font-bold text-white">PvP (Regular)</div>
+                                    <div class="text-xs text-gray-500">Standard Online Mode.</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="mt-2 text-xs text-yellow-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Changing mode requires a re-sync (Automatic).</div>
+                    </div>
+
+                    <!-- Trader Loyalty -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-tarkov-accent uppercase mb-3 border-b border-gray-800 pb-2">Trader Loyalty Levels (LL)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="settings-trader-grid">
+                            <!-- Traders injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Data Management -->
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-3 border-b border-gray-800 pb-2">Data Management</h3>
+                        <button onclick="localStorage.clear(); location.reload();" class="bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900 px-4 py-2 rounded text-xs transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Clear All Data & Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: WISHLIST -->
+            <div id="view-wishlist" class="hidden space-y-4 animate-fade-in">
+                <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg sticky top-0 z-20">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-sm font-bold text-gray-200"><i class="fa-solid fa-star mr-2 text-tarkov-gold"></i>WISHLIST</h2>
+                        <span id="wishlist-count" class="text-xs text-gray-500 font-mono">0 Items</span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1">Items added from Market are tracked here. Prices update on Sync.</div>
+                </div>
+                <div id="wishlist-grid" class="grid grid-cols-1 gap-3">
+                    <div class="text-center text-gray-500 py-10">No items in wishlist.</div>
+                </div>
+            </div>
+
+            <!-- VIEW: MARKET MONITOR -->
+            <div id="view-market" class="hidden space-y-4 animate-fade-in">
+                <div class="glass-panel rounded overflow-hidden">
+                    <div class="flex border-b border-gray-700 bg-black/20" role="tablist">
+                        <button class="market-nav-tab active" id="mt-items" role="tab" aria-selected="true" data-tab="items"><i class="fa-solid fa-tag mr-1"></i> MARKET</button>
+                        <button class="market-nav-tab" id="mt-crafts" role="tab" aria-selected="false" data-tab="crafts"><i class="fa-solid fa-hammer mr-1"></i> CRAFTS</button>
+                    </div>
+                    <div class="p-4">
+                        <div id="subview-items" role="tabpanel">
+                            <div class="mb-4 space-y-3">
+                                <div class="w-full relative">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                                    <input type="text" id="market-search" placeholder="Search Item, Task or Barter..." class="w-full bg-black/40 border border-gray-600 pl-10 pr-4 py-2 rounded text-sm text-white focus:border-tarkov-blue outline-none" aria-label="Search Market">
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <button class="filter-toggle-btn" id="filter-req-task" data-filter="task">
+                                        <i class="fa-solid fa-scroll"></i> Task Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-req-hideout" data-filter="hideout">
+                                        <i class="fa-solid fa-hammer"></i> Hideout Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-req-craft" data-filter="craft">
+                                        <i class="fa-solid fa-wrench"></i> Craft Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-req-barter" data-filter="barter">
+                                        <i class="fa-solid fa-right-left"></i> Barter
+                                    </button>
+                                </div>
+
+                                <div class="w-full overflow-x-auto scrollbar-hide pb-2">
+                                    <div class="flex gap-2 min-w-max" id="market-category-filters">
+                                        <button class="tarkov-btn active px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="all">Top Value</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="barter">Barter</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="keys">Keys</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="provisions">Food</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="ammo">Ammo</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="mods">Mods</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="container">Container</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-type="wear">Gear</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="market-result-count" class="text-xs text-gray-500 mb-2 text-right">No Data - Loading...</div>
+                            <div id="market-grid" class="grid grid-cols-1 gap-3"></div>
+                        </div>
+                        <div id="subview-crafts" class="hidden" role="tabpanel">
+                            <div class="mb-4 space-y-3">
+                                <div class="w-full relative">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                                    <input type="text" id="craft-search" placeholder="Search Recipe (Reward or Ingredient)..." class="w-full bg-black/40 border border-gray-600 pl-10 pr-4 py-2 rounded text-sm text-white focus:border-tarkov-blue outline-none" aria-label="Search Crafts">
+                                </div>
+
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <button class="filter-toggle-btn" id="filter-craft-req-task" data-filter="task">
+                                        <i class="fa-solid fa-scroll"></i> Task Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-craft-req-hideout" data-filter="hideout">
+                                        <i class="fa-solid fa-hammer"></i> Hideout Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-craft-req-craft" data-filter="craft">
+                                        <i class="fa-solid fa-wrench"></i> Craft Req
+                                    </button>
+                                    <button class="filter-toggle-btn" id="filter-craft-req-barter" data-filter="barter">
+                                        <i class="fa-solid fa-right-left"></i> Barter
+                                    </button>
+                                </div>
+
+                                <div class="w-full overflow-x-auto scrollbar-hide pb-2">
+                                    <div class="flex gap-2 min-w-max" id="craft-filters">
+                                        <button class="tarkov-btn active px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="all">ALL STATIONS</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="ワークベンチ">ワークベンチ</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="洗面所">洗面所</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="医療ステーション">医療ステーション</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="栄養ユニット">栄養ユニット</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="インテリジェンスセンター">インテリジェンス</button>
+                                        <button class="tarkov-btn px-3 py-1 text-xs rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-white transition" data-station="集水器">集水器</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="craft-result-count" class="text-xs text-gray-500 mb-2 text-right">No Data - Loading...</div>
+                            <div id="crafts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: TASKS -->
+            <div id="view-tasks" class="hidden space-y-4 animate-fade-in">
+                <div class="flex flex-col gap-3 mb-4 sticky top-0 bg-tarkov-bg pt-2 pb-4 z-20 border-b border-gray-800">
+                    <input type="text" id="task-search" placeholder="タスク名、報酬、詳細で検索..." class="w-full bg-tarkov-panel border border-tarkov-border px-4 py-3 rounded text-sm text-white focus:border-tarkov-accent focus:outline-none shadow-sm" aria-label="Search Tasks">
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="filter-trader" class="bg-tarkov-panel border border-tarkov-border px-2 py-2 rounded text-sm text-gray-300">
+                            <option value="all">全トレーダー</option>
+                        </select>
+                         <select id="filter-map" class="bg-tarkov-panel border border-tarkov-border px-2 py-2 rounded text-sm text-gray-300">
+                            <option value="all">全マップ</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="filter-type" class="bg-tarkov-panel border border-tarkov-border px-2 py-2 rounded text-sm text-gray-300">
+                            <option value="all">全タイプ</option>
+                            <option value="kappa">Kappa必須</option>
+                            <option value="lightkeeper">Lightkeeper</option>
+                        </select>
+                        <select id="sort-by" class="bg-tarkov-panel border border-tarkov-border px-2 py-2 rounded text-sm text-gray-300">
+                            <option value="minPlayerLevel">レベル順</option>
+                            <option value="name">名前順</option>
+                            <option value="trader">トレーダー順</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-2">
+                        <input type="checkbox" id="hide-completed" class="form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent">
+                        <label for="hide-completed" class="text-sm text-gray-300">完了済みを非表示</label>
+                    </div>
+                </div>
+                <div id="task-list" class="grid grid-cols-1 gap-3 pb-4">
+                    <div class="text-center text-gray-500 py-10">Loading tasks...</div>
+                </div>
+            </div>
+
+            <!-- VIEW: GUNSMITH -->
+            <div id="view-gunsmith" class="hidden space-y-4 animate-fade-in">
+                <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg">
+                    <h2 class="text-sm font-mono text-tarkov-accent mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-screwdriver-wrench"></i> INTERACTIVE GUNSMITH
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2 space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-500 block mb-1">BASE WEAPON</label>
+                                <select id="gs-weapon" class="w-full bg-black border border-gray-600 p-2 text-white font-mono rounded focus:border-tarkov-accent outline-none">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="bg-black/20 p-3 rounded border border-gray-800 flex flex-col gap-2">
+                                <div class="text-[10px] text-tarkov-accent font-bold uppercase tracking-wider flex justify-between items-center">
+                                    <span>Target Stats</span>
+                                    <button id="gs-disassemble" class="text-red-400 hover:text-red-300 text-[10px] uppercase font-bold flex items-center gap-1">
+                                        <i class="fa-solid fa-trash-can"></i> Disassemble
+                                    </button>
+                                </div>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <input type="number" id="gs-target-ergo" placeholder="Ergo (Target)" class="w-full bg-black border border-gray-600 px-2 py-1 text-xs text-white rounded outline-none focus:border-tarkov-accent">
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="number" id="gs-target-recoil" placeholder="Recoil (Max)" class="w-full bg-black border border-gray-600 px-2 py-1 text-xs text-white rounded outline-none focus:border-tarkov-accent">
+                                    </div>
+                                    <button id="gs-auto" class="bg-tarkov-accent text-black px-3 py-1 rounded text-xs font-bold hover:bg-tarkov-accentHover transition flex items-center gap-1">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Auto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-1 grid grid-cols-2 gap-2 text-center content-start">
+                            <div class="bg-black/40 p-2 rounded border border-gray-800">
+                                <div class="text-[10px] text-gray-500">ERGO</div>
+                                <div id="gs-stat-ergo" class="text-xl font-bold text-gray-300">-</div>
+                            </div>
+                            <div class="bg-black/40 p-2 rounded border border-gray-800">
+                                <div class="text-[10px] text-gray-500">RECOIL (V)</div>
+                                <div id="gs-stat-recoil" class="text-xl font-bold text-gray-300">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="gs-builder-area" class="space-y-4 min-h-[300px]">
+                    <div class="flex flex-col items-center justify-center text-gray-600 opacity-50 py-10">
+                        <i class="fa-solid fa-crosshairs text-4xl mb-4"></i>
+                        <div class="text-sm font-mono">Select a weapon to begin building</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: HIDEOUT -->
+            <div id="view-hideout" class="hidden space-y-4 animate-fade-in">
+                <div class="bg-tarkov-panel border border-tarkov-border p-4 rounded shadow-lg sticky top-0 z-20">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-sm font-bold text-gray-200"><i class="fa-solid fa-dungeon mr-2 text-tarkov-accent"></i>HIDEOUT STATUS</h2>
+                        <span id="hideout-progress-text" class="text-xs text-tarkov-green font-mono">0% Completed</span>
+                    </div>
+                    <div class="w-full bg-black/50 rounded-full h-2 mb-1 border border-gray-800 overflow-hidden">
+                        <div id="hideout-progress-bar" class="bg-tarkov-green h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="text-[10px] text-gray-500 text-right">Next Upgrade: Check items below</div>
+                </div>
+
+                <div id="hideout-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pb-10">
+                    <div class="text-center col-span-full py-10 text-gray-500"><span class="loader mr-2"></span>Loading Station Data...</div>
+                </div>
+            </div>
+
+            <!-- VIEW: AMMO (UPDATED) -->
+            <div id="view-ammo" class="hidden space-y-4 animate-fade-in flex flex-col h-full">
+                <!-- Ammo Control Panel -->
+                <div class="bg-tarkov-panel p-3 border border-tarkov-border rounded shrink-0 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-gray-200 flex items-center">
+                            <span><i class="fa-solid fa-bullseye mr-2 text-red-500"></i>BALLISTICS LIVE</span>
+                        </h3>
+                        <div class="flex bg-black/40 rounded border border-gray-800 p-0.5">
+                            <button id="av-chart" class="px-3 py-1 text-xs rounded transition bg-tarkov-border text-white" data-view="chart">CHART</button>
+                            <button id="av-list" class="px-3 py-1 text-xs rounded transition text-gray-500 hover:text-white" data-view="list">LIST</button>
+                        </div>
+                    </div>
+                    
+                    <!-- New: Source Filters & Color Mode -->
+                    <div class="flex flex-col md:flex-row gap-2 justify-between">
+                        <div class="flex gap-2">
+                            <button class="ammo-filter-btn trader active" onclick="app.toggleAmmoFilter('trader')" id="af-trader"><i class="fa-solid fa-shop"></i> TRADER</button>
+                            <button class="ammo-filter-btn flea active" onclick="app.toggleAmmoFilter('flea')" id="af-flea"><i class="fa-solid fa-people-arrows"></i> FLEA</button>
+                            <button class="ammo-filter-btn na active" onclick="app.toggleAmmoFilter('unknown')" id="af-unknown"><i class="fa-solid fa-ban"></i> N/A</button>
+                        </div>
+                        <button class="ammo-filter-btn text-xs" onclick="app.toggleAmmoColorMode()" id="af-colormode"><i class="fa-solid fa-palette"></i> COLOR: PEN</button>
+                    </div>
+
+                    <!-- Caliber Filters -->
+                    <div class="w-full">
+                        <select id="ammo-select" class="w-full bg-black/40 border border-gray-600 px-3 py-2 rounded text-sm text-white focus:border-tarkov-blue outline-none cursor-pointer appearance-none">
+                            <option value="all">ALL CALIBERS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div id="ammo-chart-container" class="glass-panel p-2 rounded flex-1 min-h-[300px] relative">
+                    <canvas id="ammoChartCanvas"></canvas>
+                </div>
+
+                <!-- List Container (Hidden by default) -->
+                <div id="ammo-list-container" class="glass-panel rounded overflow-hidden flex-1 hidden flex flex-col">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
+                            <thead class="text-xs text-gray-500 uppercase bg-black/40 sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-3">Name</th>
+                                    <th class="px-4 py-3">Dmg</th>
+                                    <th class="px-4 py-3">Pen</th>
+                                    <th class="px-4 py-3">Source</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ammo-table-body" class="divide-y divide-gray-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-tarkov-border z-[100] pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.5)]">
+        <div class="flex justify-around items-stretch h-14">
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500 mobile-nav-active" data-target="dashboard">
+                <i class="fa-solid fa-chart-line text-sm"></i><span class="text-[9px]">Dash</span>
+            </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="market">
+                <i class="fa-solid fa-shop text-sm"></i><span class="text-[9px]">Market</span>
+            </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="wishlist">
+                <i class="fa-solid fa-star text-sm"></i><span class="text-[9px]">Wish</span>
+            </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="tasks">
+                <i class="fa-solid fa-list-check text-sm"></i><span class="text-[9px]">Tasks</span>
+            </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="hideout">
+                <i class="fa-solid fa-dungeon text-sm"></i><span class="text-[9px]">Hide</span>
+            </button>
+            <button class="nav-btn-mobile flex-1 flex flex-col items-center justify-center gap-0.5 text-gray-500" data-target="ammo">
+                <i class="fa-solid fa-bullseye text-sm"></i><span class="text-[9px]">Chart</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-tarkov-panel border border-tarkov-accent text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition duration-300 z-[110] flex items-center gap-3 w-max max-w-[90%] pointer-events-none">
+        <i class="fa-solid fa-info-circle text-tarkov-accent"></i><span id="toast-msg" class="text-sm font-medium">Notification</span>
+    </div>
+
+    <script>
+        // --- APP CONTROLLER ---
+        window.app = {
+            data: { 
+                tasks: [], 
+                ammo: [], 
+                traders: [],
+                maps: [],
+                weapons: [], 
+                currentBuild: null,
+                currentSlotCandidates: [],
+                marketItems: [],
+                itemPriceMap: new Map(),
+                itemFullPriceData: new Map(), 
+                hideoutMap: new Map(),
+                acquisitionMap: new Map(),
+                crafts: [],
+                craftMap: new Map(),
+                hideoutStationsRaw: [],
+                userHideoutLevels: {},
+                wishlist: new Set(),
+                marketConfig: {
+                    category: 'all',
+                    station: 'all',
+                    tab: 'items',
+                    filters: { task: false, hideout: false, barter: false, craft: false },
+                    craftFilters: { task: false, hideout: false, barter: false, craft: false }
+                },
+                ammoConfig: {
+                    view: 'chart',
+                    caliber: 'all',
+                    filters: { trader: true, flea: true, unknown: true }, // New Filters
+                    colorMode: 'pen' // 'pen' or 'source'
+                },
+                config: {
+                    gameMode: 'pve', 
+                    traderLevels: {
+                        'Prapor': 4,
+                        'Therapist': 4,
+                        'Skier': 4,
+                        'Peacekeeper': 4,
+                        'Mechanic': 4,
+                        'Ragman': 4,
+                        'Jaeger': 4,
+                        'Ref': 4
+                    }
+                }
+            },
+            
+            // Chart.js Instance
+            ammoChart: null,
+
+            consts: {
+                typeMapping: { 'barter': ['barter'], 'keys': ['keys'], 'provisions': ['provisions'], 'ammo': ['ammo'], 'mods': ['mods', 'suppressor'], 'container': ['container'], 'wear': ['armor', 'helmet', 'glasses', 'headphones', 'rig', 'backpack'] },
+                globalTypes: ['barter', 'keys', 'ammo', 'provisions', 'mods', 'suppressor', 'container', 'armor', 'helmet', 'glasses', 'headphones', 'rig', 'backpack', 'gun'],
+                tradersList: ['Prapor', 'Therapist', 'Skier', 'Peacekeeper', 'Mechanic', 'Ragman', 'Jaeger', 'Ref'],
+                sherpaIntelDB: {
+                    "Delivery from the Past": {
+                        desc: "Factoryは夜間推奨。Customsで回収後、一度スタッシュに戻りクエスト倉庫にアイテムを移すこと。",
+                        tips: ["夜間Factoryは懐中電灯を持参", "Praporsの手紙は脱出不要"]
+                    }
+                }
+            },
+            
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => { clearTimeout(timeout); func.apply(this, args); };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            },
+
+            async init() {
+                if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => this.runInit()); } 
+                else { this.runInit(); }
+            },
+
+            async runInit() {
+                this.loadConfig(); 
+                this.renderConfigUI();
+                this.setupListeners();
+                this.loadHideoutStatus();
+                this.loadWishlist();
+                this.safeUpdateText('market-result-count', "Waiting for Sync...");
+                this.fetchLiveStats();
+                this.fetchWeaponData();
+            },
+
+            async fetchApiData(query) {
+                try {
+                    const cleanQuery = query.replace(new RegExp("[\\r\\n]+", "g"), ' ').replace(new RegExp("\\s{2,}", "g"), ' ').trim();
+                    const res = await fetch('https://api.tarkov.dev/graphql', {
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, 
+                        body: JSON.stringify({ query: cleanQuery })
+                    });
+                    if (!res.ok) throw new Error(`HTTP Status ${res.status}`);
+                    const json = await res.json();
+                    if (json.errors) { console.error("API Errors:", json.errors); if(!json.data) throw new Error(json.errors[0].message); }
+                    if (json.data) return json.data;
+                    throw new Error("No data in response");
+                } catch (e) {
+                    console.error("API Fetch Error:", e);
+                    this.showToast("Connection Error: " + e.message);
+                    this.safeUpdateHTML('dash-status', `<span class="text-red-500">ERROR</span>`);
+                    return null;
+                }
+            },
+
+            async fetchLiveStats() {
+                const btn = document.getElementById('sync-btn');
+                const original = btn ? btn.innerHTML : '';
+                if(btn) { btn.innerHTML = `<span class="loader"></span>`; btn.disabled = true; }
+
+                const modeLabel = this.data.config.gameMode === 'pve' ? 'PvE Zone' : 'PvP Mode';
+                const modeColor = this.data.config.gameMode === 'pve' ? 'bg-tarkov-green text-black' : 'bg-red-600 text-white';
+                const badge = document.getElementById('header-mode-badge');
+                if(badge) { badge.className = `text-[10px] px-1 rounded ml-1 align-top transition-colors ${modeColor}`; badge.innerText = this.data.config.gameMode === 'pve' ? 'PvE' : 'PvP'; }
+
+                this.showToast(`Syncing Data (${modeLabel})...`);
+                this.safeUpdateHTML('dash-status', `<span class="text-yellow-500">INITIALIZING...</span>`);
+
+                try {
+                    const taskQuery = `{ 
+                        tasks(limit: 1000, lang: ja) { 
+                            id name minPlayerLevel kappaRequired map { name } trader { name } wikiLink lightkeeperRequired
+                            objectives { description } 
+                            startRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } } 
+                            finishRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } }
+                        }
+                        ammo(limit: 200, lang: en) { item { id name shortName } caliber damage penetrationPower armorDamage }
+                    }`;
+                    const taskData = await this.fetchApiData(taskQuery);
+                    if (taskData) {
+                        this.loadTaskCompletionStatus();
+                        const savedStatus = JSON.parse(localStorage.getItem('taskCompletionStatus') || '{}');
+                        this.data.tasks = taskData.tasks.map(t => ({...t, completed: !!savedStatus[t.id]}));
+                        this.data.ammo = taskData.ammo.sort((a, b) => b.penetrationPower - a.penetrationPower);
+                        this.processTaskMetaData();
+                        this.renderTasks();
+                        this.safeUpdateText('dash-task-count', this.data.tasks.length);
+                    }
+                    await this.fetchMarketDataFull();
+                    this.bindAmmoPrices();
+                    this.renderAmmo();
+                    this.safeUpdateHTML('dash-status', `<span class="${this.data.config.gameMode === 'pve' ? 'text-green-400' : 'text-red-400'}">ONLINE (${this.data.config.gameMode === 'pve' ? 'PvE' : 'PvP'})</span>`);
+                    this.showToast("System Fully Synchronized");
+                } catch (e) {
+                    console.error(e);
+                    this.showToast("Partial Sync Fail");
+                    this.safeUpdateHTML('dash-status', `<span class="text-red-500">SYNC ERROR</span>`);
+                }
+                if(btn) { btn.innerHTML = original; btn.disabled = false; }
+            },
+
+            async fetchMarketDataFull() {
+                const gameMode = this.data.config.gameMode;
+                const hideoutQuery = `{ hideoutStations(lang: ja) { id name levels { level itemRequirements { count item { id name iconLink } } } } }`;
+                const hideoutData = await this.fetchApiData(hideoutQuery);
+                if (hideoutData) {
+                    this.data.hideoutStationsRaw = hideoutData.hideoutStations;
+                    this.data.hideoutMap.clear();
+                    hideoutData.hideoutStations.forEach(s => s.levels.forEach(l => l.itemRequirements.forEach(r => {
+                        if (!this.data.hideoutMap.has(r.item.id)) this.data.hideoutMap.set(r.item.id, []);
+                        this.data.hideoutMap.get(r.item.id).push({ stationId: s.id, stationName: s.name, level: l.level, count: r.count });
+                    })));
+                    this.renderHideout();
+                }
+                const barterQuery = `{ barters(lang: ja) { trader { name } level requiredItems { count item { name iconLink } } rewardItems { item { id } } } }`;
+                const barterData = await this.fetchApiData(barterQuery);
+                if (barterData) {
+                    this.data.acquisitionMap.clear();
+                    barterData.barters.forEach(b => b.rewardItems.forEach(r => {
+                        if (!this.data.acquisitionMap.has(r.item.id)) this.data.acquisitionMap.set(r.item.id, []);
+                        this.data.acquisitionMap.get(r.item.id).push({ traderName: b.trader.name, level: b.level, ingredients: b.requiredItems });
+                    }));
+                }
+                const marketQuery = `{ 
+                    items(gameMode: ${gameMode}, limit: 3500, offset: 0, types: [${this.consts.globalTypes.join(', ')}], lang: ja) {
+                        id name shortName avg24hPrice low24hPrice high24hPrice changeLast48hPercent wikiLink types iconLink gridImageLink description
+                        sellFor { price source } 
+                        buyFor { price source vendor { name } requirements { type value } }
+                        usedInTasks { id name trader { name } wikiLink }
+                        bartersFor { trader { name } level rewardItems { item { name } } }
+                    }
+                }`;
+                const marketRes = await this.fetchApiData(marketQuery);
+                if (marketRes) {
+                    this.data.marketItems = marketRes.items.filter(i => i.avg24hPrice > 0 || (i.buyFor && i.buyFor.length > 0)).sort((a, b) => b.avg24hPrice - a.avg24hPrice);
+                    this.data.itemPriceMap.clear();
+                    this.data.itemFullPriceData.clear(); 
+                    this.data.marketItems.forEach(i => {
+                        this.data.itemFullPriceData.set(i.id, { avg24hPrice: i.avg24hPrice, buyFor: i.buyFor || [] });
+                        this.data.itemPriceMap.set(i.id, i.avg24hPrice);
+                    });
+                    this.safeUpdateText('dash-market-count', this.data.marketItems.length);
+                }
+                const craftQuery = `{ 
+                    crafts(lang: ja) {
+                        station { name } level duration
+                        requiredItems { count item { id name iconLink } }
+                        rewardItems { count item { id name iconLink } }
+                    }
+                }`;
+                const craftRes = await this.fetchApiData(craftQuery);
+                if (craftRes) {
+                    this.data.craftMap.clear();
+                    this.data.crafts = craftRes.crafts.map(c => {
+                        const cost = c.requiredItems.reduce((acc, req) => {
+                            const bestPrice = this.getBestPrice(req.item.id);
+                            return acc + (bestPrice.price * req.count);
+                        }, 0);
+                        const rev = c.rewardItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
+                        const profit = (rev * 0.9) - cost;
+                        c.requiredItems.forEach(req => {
+                            if(!this.data.craftMap.has(req.item.id)) this.data.craftMap.set(req.item.id, []);
+                            this.data.craftMap.get(req.item.id).push({ type: 'ingredient', profit, station: c.station.name, level: c.level, products: c.rewardItems });
+                        });
+                        return { ...c, cost, profit };
+                    }).sort((a, b) => b.profit - a.profit);
+                }
+                this.calculateAllRequirements();
+                this.renderMarket();
+                this.renderCrafts();
+                this.renderWishlist();
+            },
+            
+            getBestPrice(itemId) {
+                const data = this.data.itemFullPriceData.get(itemId);
+                if (!data) return { price: 0, source: 'unknown', vendor: 'Unknown' };
+                let bestPrice = 999999999;
+                let source = 'unknown';
+                let vendor = 'Unavailable';
+                if (data.avg24hPrice > 0) { bestPrice = data.avg24hPrice; source = 'flea'; vendor = 'Flea Market'; }
+                if (data.buyFor) {
+                    data.buyFor.forEach(offer => {
+                        if (offer.source === 'fleaMarket') return; 
+                        const traderName = offer.vendor.name;
+                        const userLL = this.data.config.traderLevels[traderName] || 4; 
+                        const llReq = offer.requirements.find(r => r.type === 'loyaltyLevel');
+                        const reqLevel = llReq ? llReq.value : 1;
+                        if (userLL >= reqLevel) {
+                            if (offer.price < bestPrice) { bestPrice = offer.price; source = 'trader'; vendor = `${traderName} LL${reqLevel}`; }
+                        }
+                    });
+                }
+                if (bestPrice === 999999999) { bestPrice = 0; source = 'unknown'; vendor = 'Unavailable'; }
+                return { price: bestPrice, source, vendor };
+            },
+
+            bindAmmoPrices() {
+                this.data.ammo.forEach(a => {
+                    let priceInfo = this.getBestPrice(a.item.id);
+                    if (priceInfo.price === 0 || priceInfo.source === 'unknown') {
+                        const match = this.data.marketItems.find(mi => mi.name === a.item.name || mi.shortName === a.item.shortName);
+                        if (match) { priceInfo = this.getBestPrice(match.id); }
+                    }
+                    a.priceData = priceInfo;
+                });
+            },
+
+            // --- AMMO VIEWER FUNCTIONS ---
+            toggleAmmoFilter(type) {
+                this.data.ammoConfig.filters[type] = !this.data.ammoConfig.filters[type];
+                document.getElementById(`af-${type}`).classList.toggle('active');
+                this.updateAmmoVisuals();
+            },
+
+            toggleAmmoColorMode() {
+                this.data.ammoConfig.colorMode = this.data.ammoConfig.colorMode === 'pen' ? 'source' : 'pen';
+                const btn = document.getElementById('af-colormode');
+                btn.innerHTML = this.data.ammoConfig.colorMode === 'pen' ? '<i class="fa-solid fa-palette"></i> COLOR: PEN' : '<i class="fa-solid fa-shop"></i> COLOR: SRC';
+                this.updateAmmoVisuals();
+            },
+
+            switchAmmoView(view) {
+                this.data.ammoConfig.view = view;
+                const btnChart = document.getElementById('av-chart');
+                const btnList = document.getElementById('av-list');
+                if(btnChart) btnChart.className = `px-3 py-1 text-xs rounded transition ${view === 'chart' ? 'bg-tarkov-border text-white' : 'text-gray-500 hover:text-white'}`;
+                if(btnList) btnList.className = `px-3 py-1 text-xs rounded transition ${view === 'list' ? 'bg-tarkov-border text-white' : 'text-gray-500 hover:text-white'}`;
+                const cContainer = document.getElementById('ammo-chart-container');
+                if(cContainer) cContainer.classList.toggle('hidden', view !== 'chart');
+                const lContainer = document.getElementById('ammo-list-container');
+                if(lContainer) lContainer.classList.toggle('hidden', view !== 'list');
+            },
+
+            renderAmmo() {
+                if (!this.data.ammo || this.data.ammo.length === 0) return;
+                const calibers = [...new Set(this.data.ammo.map(a => a.caliber))].sort();
+                const select = document.getElementById('ammo-select');
+                if (select && select.children.length <= 1) {
+                     calibers.forEach(cal => {
+                        const cleanCal = cal.replace('Caliber', '');
+                        const opt = document.createElement('option');
+                        opt.value = cal;
+                        opt.innerText = cleanCal;
+                        select.appendChild(opt);
+                    });
+                }
+                this.updateAmmoVisuals();
+            },
+
+            updateAmmoVisuals() {
+                const selectedCal = this.data.ammoConfig.caliber;
+                const filters = this.data.ammoConfig.filters;
+                
+                let filteredAmmo = this.data.ammo.filter(a => {
+                    if (selectedCal !== 'all' && a.caliber !== selectedCal) return false;
+                    const src = a.priceData?.source || 'unknown';
+                    if (src === 'trader' && !filters.trader) return false;
+                    if (src === 'flea' && !filters.flea) return false;
+                    if (src === 'unknown' && !filters.unknown) return false;
+                    return true;
+                });
+
+                const tbody = document.getElementById('ammo-table-body');
+                if(tbody) {
+                    tbody.innerHTML = filteredAmmo.map(a => {
+                        const pd = a.priceData || { price: 0, source: 'unknown' };
+                        const priceDisplay = pd.price > 0 ? `₽${pd.price.toLocaleString()}` : '<span class="text-gray-600 font-normal">N/A</span>';
+                        const sourceDisplay = pd.source === 'trader' ? `<span class="text-tarkov-green">${pd.vendor}</span>` : (pd.source === 'flea' ? '<span class="text-gray-500">Flea</span>' : '<span class="text-red-900">Unavailable</span>');
+                        return `
+                        <tr class="hover:bg-white/5 border-b border-gray-800">
+                            <td class="px-4 py-3 font-mono text-xs text-gray-300">
+                                <span class="text-tarkov-accent">${a.item.shortName || a.item.name}</span><br>
+                                <span class="text-[9px] text-gray-500">${a.caliber.replace('Caliber','')}</td>
+                            <td class="px-4 py-3 text-gray-400 font-mono">${a.damage}</td>
+                            <td class="px-4 py-3 font-bold font-mono ${a.penetrationPower > 40 ? 'text-red-400' : (a.penetrationPower > 30 ? 'text-yellow-500' : 'text-gray-500')}">${a.penetrationPower}</td>
+                            <td class="px-4 py-3 text-xs font-mono text-right">
+                                <div class="font-bold text-white">${priceDisplay}</div>
+                                <div class="text-[9px]">${sourceDisplay}</div>
+                            </td>
+                        </tr>
+                    `}).join('');
+                }
+                this.renderAmmoChart(filteredAmmo);
+            },
+
+            renderAmmoChart(data) {
+                const ctx = document.getElementById('ammoChartCanvas');
+                if (!ctx) return;
+                if (this.ammoChart) { this.ammoChart.destroy(); }
+
+                const mode = this.data.ammoConfig.colorMode;
+                const scatterData = data.map(a => ({
+                    x: a.damage,
+                    y: a.penetrationPower,
+                    name: a.item.shortName || a.item.name,
+                    priceData: a.priceData,
+                    fullData: a
+                }));
+
+                const getColor = (d) => {
+                    if (mode === 'source') {
+                        const src = d.priceData?.source || 'unknown';
+                        if (src === 'trader') return '#4ade80';
+                        if (src === 'flea') return '#f97316';
+                        return '#4b5563';
+                    }
+                    const pen = d.y;
+                    if (pen >= 60) return '#ef4444'; 
+                    if (pen >= 50) return '#f97316'; 
+                    if (pen >= 40) return '#eab308'; 
+                    if (pen >= 30) return '#84cc16'; 
+                    return '#6b7280'; 
+                };
+
+                const backgroundColors = scatterData.map(d => getColor(d));
+
+                this.ammoChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets: [{
+                            label: 'Ammo Performance',
+                            data: scatterData,
+                            backgroundColor: backgroundColors,
+                            pointRadius: 6,
+                            pointHoverRadius: 10,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(10, 10, 10, 0.95)',
+                                titleColor: '#9a8c7d',
+                                bodyColor: '#fff',
+                                borderColor: '#333',
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        const p = context.raw;
+                                        const pd = p.priceData || { price: 0, vendor: 'Unknown' };
+                                        const priceText = pd.price > 0 ? `₽${pd.price.toLocaleString()}` : 'N/A';
+                                        return [
+                                            `[${p.name}]`,
+                                            `Pen: ${p.y}  /  Dmg: ${p.x}`,
+                                            `----------------`,
+                                            `Vendor: ${pd.vendor}`,
+                                            `Price: ${priceText}`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'DAMAGE', color: '#666' }, grid: { color: '#333' }, ticks: { color: '#888' } },
+                            y: { title: { display: true, text: 'PENETRATION', color: '#666' }, grid: { color: '#333' }, ticks: { color: '#888' }, min: 0, max: 80 }
+                        }
+                    }
+                });
+            },
+
+            // --- COMMON & HELPER METHODS (Fully Expanded for Reliability) ---
+            
+            safeUpdateText(id, value) { 
+                const el = document.getElementById(id); 
+                if (el) el.innerText = value; 
+            },
+            
+            safeUpdateHTML(id, html) { 
+                const el = document.getElementById(id); 
+                if (el) el.innerHTML = html; 
+            },
+            
+            switchMarketTab(tab) {
+                this.data.marketConfig.tab = tab;
+                const tabItems = document.getElementById('mt-items');
+                const tabCrafts = document.getElementById('mt-crafts');
+                if(tabItems) { 
+                    tabItems.className = `market-nav-tab ${tab === 'items' ? 'active' : ''}`; 
+                    tabItems.setAttribute('aria-selected', tab === 'items'); 
+                }
+                if(tabCrafts) { 
+                    tabCrafts.className = `market-nav-tab ${tab === 'crafts' ? 'active' : ''}`; 
+                    tabCrafts.setAttribute('aria-selected', tab === 'crafts'); 
+                }
+                const viewItems = document.getElementById('subview-items');
+                if(viewItems) viewItems.classList.toggle('hidden', tab !== 'items');
+                const viewCrafts = document.getElementById('subview-crafts');
+                if(viewCrafts) viewCrafts.classList.toggle('hidden', tab !== 'crafts');
+            },
+            
+            toggleMarketFilter(type) { 
+                this.data.marketConfig.filters[type] = !this.data.marketConfig.filters[type]; 
+                const btn = document.getElementById(`filter-req-${type}`); 
+                if(btn) btn.classList.toggle('active', this.data.marketConfig.filters[type]); 
+                this.renderMarket(); 
+            },
+            
+            toggleCraftFilter(type) { 
+                this.data.marketConfig.craftFilters[type] = !this.data.marketConfig.craftFilters[type]; 
+                const btn = document.getElementById(`filter-craft-req-${type}`); 
+                if(btn) btn.classList.toggle('active', this.data.marketConfig.craftFilters[type]); 
+                this.renderCrafts(); 
+            },
+            
+            loadWishlist() { 
+                const s = localStorage.getItem('userWishlist'); 
+                if (s) this.data.wishlist = new Set(JSON.parse(s)); 
+            },
+            
+            saveWishlist() { 
+                localStorage.setItem('userWishlist', JSON.stringify([...this.data.wishlist])); 
+            },
+            
+            toggleWishlist(id) { 
+                if (this.data.wishlist.has(id)) this.data.wishlist.delete(id); 
+                else this.data.wishlist.add(id); 
+                this.saveWishlist(); 
+                this.renderMarket(); 
+                this.renderWishlist(); 
+            },
+            
+            setupListeners() {
+                const syncBtn = document.getElementById('sync-btn'); 
+                if(syncBtn) syncBtn.addEventListener('click', () => this.fetchLiveStats());
+                
+                document.querySelectorAll('.nav-btn-desktop, .nav-btn-mobile, .nav-btn-shortcut').forEach(btn => { 
+                    btn.addEventListener('click', (e) => this.switchTab(e.currentTarget.dataset.target)); 
+                });
+                
+                document.querySelectorAll('.market-nav-tab').forEach(btn => { 
+                    btn.addEventListener('click', (e) => this.switchMarketTab(e.currentTarget.dataset.tab)); 
+                });
+                
+                document.querySelectorAll('.filter-toggle-btn').forEach(btn => { 
+                    if(btn.id.includes('craft')) { 
+                        btn.addEventListener('click', (e) => this.toggleCraftFilter(e.currentTarget.dataset.filter)); 
+                    } else { 
+                        btn.addEventListener('click', (e) => this.toggleMarketFilter(e.currentTarget.dataset.filter)); 
+                    } 
+                });
+                
+                document.querySelectorAll('input[name="gameMode"]').forEach(radio => { 
+                    radio.addEventListener('change', (e) => this.updateGameMode(e.target.value)); 
+                });
+                
+                const avChart = document.getElementById('av-chart'); 
+                if(avChart) avChart.addEventListener('click', () => this.switchAmmoView('chart'));
+                const avList = document.getElementById('av-list'); 
+                if(avList) avList.addEventListener('click', () => this.switchAmmoView('list'));
+                const ammoSelect = document.getElementById('ammo-select'); 
+                if(ammoSelect) { 
+                    ammoSelect.addEventListener('change', (e) => { 
+                        this.data.ammoConfig.caliber = e.target.value; 
+                        this.updateAmmoVisuals(); 
+                    }); 
+                }
+                
+                const gsDisassemble = document.getElementById('gs-disassemble'); 
+                if(gsDisassemble) gsDisassemble.addEventListener('click', () => this.disassemble());
+                const gsAuto = document.getElementById('gs-auto'); 
+                if(gsAuto) gsAuto.addEventListener('click', () => this.autoAssemble());
+                
+                ['task-search', 'market-search', 'craft-search'].forEach(id => { 
+                    const el = document.getElementById(id); 
+                    if(el) { 
+                        const renderer = id === 'task-search' ? this.renderTasks : (id === 'market-search' ? this.renderMarket : this.renderCrafts); 
+                        el.addEventListener('input', this.debounce(() => renderer.call(this), 300)); 
+                    } 
+                });
+                
+                ['filter-trader', 'filter-map', 'filter-type', 'hide-completed', 'sort-by'].forEach(id => { 
+                    const el = document.getElementById(id); 
+                    if(el) el.addEventListener('change', () => this.renderTasks()); 
+                });
+                
+                document.querySelectorAll('#market-category-filters button').forEach(b => b.addEventListener('click', (e) => { 
+                    document.querySelectorAll('#market-category-filters button').forEach(bb => bb.classList.remove('active', 'text-white')); 
+                    e.target.classList.add('active', 'text-white'); 
+                    this.data.marketConfig.category = e.target.dataset.type; 
+                    this.renderMarket(); 
+                }));
+                
+                document.querySelectorAll('#craft-filters button').forEach(b => b.addEventListener('click', (e) => { 
+                    document.querySelectorAll('#craft-filters button').forEach(bb => bb.classList.remove('active', 'text-white')); 
+                    e.target.classList.add('active', 'text-white'); 
+                    this.data.marketConfig.station = e.target.dataset.station; 
+                    this.renderCrafts(); 
+                }));
+            },
+            
+            toggleTaskAccordion(header) { 
+                const content = header.nextElementSibling; 
+                const icon = header.querySelector('.task-accordion-icon'); 
+                if (content.style.maxHeight) { 
+                    content.style.maxHeight = null; 
+                    icon.classList.remove('rotate-180'); 
+                    header.setAttribute('aria-expanded', 'false'); 
+                } else { 
+                    content.style.maxHeight = content.scrollHeight + "px"; 
+                    icon.classList.add('rotate-180'); 
+                    header.setAttribute('aria-expanded', 'true'); 
+                } 
+            },
+            
+            toggleTaskCompleted(taskId) { 
+                const idx = this.data.tasks.findIndex(t => t.id === taskId); 
+                if (idx !== -1) { 
+                    this.data.tasks[idx].completed = !this.data.tasks[idx].completed; 
+                    this.saveTaskCompletionStatus(); 
+                    this.calculateAllRequirements(); 
+                    this.renderTasks(); 
+                    if(!document.getElementById('view-market').classList.contains('hidden')) { this.renderMarket(); } 
+                } 
+            },
+            
+            loadTaskCompletionStatus() { 
+                const s = localStorage.getItem('taskCompletionStatus'); 
+                if (s) { const map = JSON.parse(s); this.data.tasks.forEach(t => t.completed = map[t.id] || false); } 
+            },
+            
+            saveTaskCompletionStatus() { 
+                const map = {}; this.data.tasks.forEach(t => { if(t.completed) map[t.id] = true; }); 
+                localStorage.setItem('taskCompletionStatus', JSON.stringify(map)); 
+            },
+            
+            showToast(msg) { 
+                const t = document.getElementById('toast'); 
+                document.getElementById('toast-msg').innerText = msg; 
+                t.classList.remove('opacity-0', 'pointer-events-none'); 
+                t.classList.add('animate-bounce'); 
+                setTimeout(() => { t.classList.add('opacity-0', 'pointer-events-none'); t.classList.remove('animate-bounce'); }, 2500); 
+            },
+            
+            calculateAllRequirements() { 
+                this.data.marketItems.forEach(item => { 
+                    item.reqData = { total: { task: 0, hideout: 0 }, remaining: { task: 0, hideout: 0 }, active: false }; 
+                    if(item.usedInTasks) { 
+                        item.usedInTasks.forEach(t => { 
+                            const taskInfo = this.data.tasks.find(tk => tk.id === t.id); 
+                            const count = 1; 
+                            item.reqData.total.task += count; 
+                            if(taskInfo && !taskInfo.completed) { item.reqData.remaining.task += count; } 
+                        }); 
+                    } 
+                    const hReqs = this.data.hideoutMap.get(item.id); 
+                    if(hReqs) { 
+                        hReqs.forEach(h => { 
+                            item.reqData.total.hideout += h.count; 
+                            const curLvl = this.data.userHideoutLevels[h.stationId] || 0; 
+                            if(h.level > curLvl) { item.reqData.remaining.hideout += h.count; } 
+                        }); 
+                    } 
+                    if(item.reqData.remaining.task > 0 || item.reqData.remaining.hideout > 0) { item.reqData.active = true; } 
+                }); 
+            }
+        };
+        app.init();
+    </script>
+</body>
+</html>
+
