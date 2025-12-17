@@ -72,41 +72,63 @@
 
         /* --- Market Monitor Specific Styles --- */
         .req-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px; margin-right: 4px; transition: all 0.3s; }
+        
+        /* Active States */
         .req-quest { background: rgba(234, 179, 8, 0.2); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.4); }
         .req-hideout { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
         .req-barter { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.4); }
         .req-craft { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+        
+        /* Phase 3: Inactive/Completed States */
         .req-done { background: rgba(60, 60, 60, 0.2); color: #666; border: 1px solid rgba(60, 60, 60, 0.4); opacity: 0.6; }
+        .req-done-text { text-decoration: line-through; opacity: 0.6; }
         
         .profit-pos { color: #4ade80; }
         .profit-neg { color: #ef4444; }
         
-        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
+        /* Market Accordion */
         .detail-section { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, margin-top 0.3s; }
         .market-card.expanded .detail-section { max-height: 2000px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #444; }
+        .market-card.expanded { background-color: #1a1a1a; border-color: #4a6fa5; box-shadow: 0 0 15px rgba(74, 111, 165, 0.1); }
         
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* Market Tab Navigation */
         .market-nav-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: bold; font-size: 0.8rem; background: transparent; }
         .market-nav-tab:hover { background: rgba(255,255,255,0.05); }
         .market-nav-tab.active { color: #9a8c7d; border-bottom-color: #9a8c7d; background: linear-gradient(to top, rgba(154, 140, 125, 0.1), transparent); }
         
+        /* Hideout Specific */
         .hideout-level-btn { width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #222; color: #666; transition: all 0.2s; }
         .hideout-level-btn:hover:not(:disabled) { background: #333; color: #fff; }
         .hideout-level-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .filter-toggle-btn { font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .filter-toggle-btn.active { background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d; }
+        /* Filter Checkbox Button Style (Phase 4) */
+        .filter-toggle-btn {
+            font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .filter-toggle-btn.active {
+            background: rgba(154, 140, 125, 0.2); border-color: #9a8c7d; color: #9a8c7d;
+        }
         .filter-toggle-btn:hover:not(.active) { background: #252525; color: #aaa; }
         
+        /* Safe Area for iPhone */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+        /* Wishlist Star */
         .wishlist-star { cursor: pointer; transition: transform 0.2s; }
         .wishlist-star:hover { transform: scale(1.2); }
         .wishlist-star.active { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
 
+        /* Settings specific */
+        .trader-avatar-box { position: relative; }
+        .trader-avatar-box img { filter: grayscale(100%); transition: all 0.3s; }
+        .trader-avatar-box.active img { filter: grayscale(0%); }
+        .trader-level-selector select { appearance: none; text-align: center; }
+        
         /* Craft Cost Detail */
-        .cost-source-trader { color: #4ade80; font-weight: bold; }
+        .cost-source-trader { color: #4ade80; }
         .cost-source-flea { color: #f97316; }
     </style>
 </head>
@@ -118,12 +140,12 @@
     <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
         <div class="flex items-center gap-2 md:gap-3">
             <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
-            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.61 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
+            <h1 class="font-bold text-base md:text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.60 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
         </div>
         
         <div class="flex items-center gap-2 md:gap-4">
             <button id="sync-btn" class="text-xs flex items-center gap-2 bg-tarkov-border hover:bg-gray-700 transition px-3 py-2 rounded text-gray-300 border border-tarkov-border active:scale-95">
-                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">LIVE SYNC</span><span class="md:hidden">SYNC</span>
+                <i class="fa-solid fa-rotate"></i> <span class="hidden md:inline">SYNC</span>
             </button>
             <button class="nav-btn-shortcut text-gray-400 hover:text-white transition px-2 py-2" data-target="settings" title="Settings">
                 <i class="fa-solid fa-gear text-lg"></i>
@@ -167,7 +189,7 @@
             
             <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">
                 INTEGRATED SYSTEM<br>
-                v0.61 (ECONOMY)
+                v0.60 (REAL COST)
             </div>
         </nav>
 
@@ -475,7 +497,7 @@
                 </div>
             </div>
 
-            <!-- VIEW: AMMO -->
+            <!-- VIEW: AMMO (UPDATED) -->
             <div id="view-ammo" class="hidden space-y-4 animate-fade-in flex flex-col h-full">
                 <!-- Ammo Control Panel -->
                 <div class="bg-tarkov-panel p-3 border border-tarkov-border rounded shrink-0">
@@ -500,7 +522,7 @@
                     <canvas id="ammoChartCanvas"></canvas>
                 </div>
 
-                <!-- List Container -->
+                <!-- List Container (Hidden by default) -->
                 <div id="ammo-list-container" class="glass-panel rounded overflow-hidden flex-1 hidden flex flex-col">
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-sm text-left text-gray-400 whitespace-nowrap">
@@ -551,6 +573,7 @@
     </div>
 
     <script>
+        // --- APP CONTROLLER ---
         window.app = {
             data: { 
                 tasks: [], 
@@ -561,8 +584,8 @@
                 currentBuild: null,
                 currentSlotCandidates: [],
                 marketItems: [],
-                itemPriceMap: new Map(), // Simple price map for quick lookup
-                itemFullPriceData: new Map(), // Stores full buyFor data for smart calculations
+                itemPriceMap: new Map(), // Enhanced to allow fallback
+                itemFullPriceData: new Map(), // New: Stores detailed BuyFor data
                 hideoutMap: new Map(),
                 acquisitionMap: new Map(),
                 crafts: [],
@@ -582,7 +605,7 @@
                     caliber: 'all'
                 },
                 config: {
-                    gameMode: 'pve', 
+                    gameMode: 'pve', // 'pve' or 'regular'
                     traderLevels: {
                         'Prapor': 4,
                         'Therapist': 4,
@@ -596,6 +619,7 @@
                 }
             },
             
+            // Chart.js Instance
             ammoChart: null,
 
             consts: {
@@ -626,6 +650,7 @@
                 }
             },
             
+            // --- UTIL: Debounce ---
             debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -647,7 +672,7 @@
             },
 
             async runInit() {
-                this.loadConfig(); 
+                this.loadConfig(); // Load Saved Config First
                 this.renderConfigUI();
                 this.setupListeners();
                 this.loadHideoutStatus();
@@ -693,6 +718,7 @@
                     btn.disabled = true;
                 }
 
+                // Update Header Badge
                 const modeLabel = this.data.config.gameMode === 'pve' ? 'PvE Zone' : 'PvP Mode';
                 const modeColor = this.data.config.gameMode === 'pve' ? 'bg-tarkov-green text-black' : 'bg-red-600 text-white';
                 const badge = document.getElementById('header-mode-badge');
@@ -746,7 +772,7 @@
             },
 
             async fetchMarketDataFull() {
-                const gameMode = this.data.config.gameMode;
+                const gameMode = this.data.config.gameMode; // Use Configured Mode
                 
                 const hideoutQuery = `{ hideoutStations(lang: ja) { id name levels { level itemRequirements { count item { id name iconLink } } } } }`;
                 const hideoutData = await this.fetchApiData(hideoutQuery);
@@ -770,12 +796,13 @@
                     }));
                 }
 
-                // CRITICAL UPDATE v0.61: Using priceRUB for accurate currency conversion
+                // DYNAMIC GAME MODE QUERY
+                // Added buyFor to get trader prices
                 const marketQuery = `{ 
                     items(gameMode: ${gameMode}, limit: 3500, offset: 0, types: [${this.consts.globalTypes.join(', ')}], lang: ja) {
                         id name shortName avg24hPrice low24hPrice high24hPrice changeLast48hPercent wikiLink types iconLink gridImageLink description
                         sellFor { price source } 
-                        buyFor { priceRUB source vendor { name } requirements { type value } }
+                        buyFor { price source vendor { name } requirements { type value } }
                         usedInTasks { id name trader { name } wikiLink }
                         bartersFor { trader { name } level rewardItems { item { name } } }
                     }
@@ -784,13 +811,15 @@
                 if (marketRes) {
                     this.data.marketItems = marketRes.items.filter(i => i.avg24hPrice > 0 || (i.buyFor && i.buyFor.length > 0)).sort((a, b) => b.avg24hPrice - a.avg24hPrice);
                     this.data.itemPriceMap.clear();
-                    this.data.itemFullPriceData.clear(); 
+                    this.data.itemFullPriceData.clear(); // Clear robust cache
 
                     this.data.marketItems.forEach(i => {
+                        // Store full buy data for logic
                         this.data.itemFullPriceData.set(i.id, {
                             avg24hPrice: i.avg24hPrice,
                             buyFor: i.buyFor || []
                         });
+                        // Basic map fallback
                         this.data.itemPriceMap.set(i.id, i.avg24hPrice);
                     });
                     
@@ -808,12 +837,16 @@
                 if (craftRes) {
                     this.data.craftMap.clear();
                     this.data.crafts = craftRes.crafts.map(c => {
+                        // Calculate Best Cost based on Trader LL
                         const cost = c.requiredItems.reduce((acc, req) => {
                             const bestPrice = this.getBestPrice(req.item.id);
                             return acc + (bestPrice.price * req.count);
                         }, 0);
 
+                        // Revenue is always based on Market Sell Price (approx)
                         const rev = c.rewardItems.reduce((a, r) => a + ((this.data.itemPriceMap.get(r.item.id) || 0) * r.count), 0);
+                        
+                        // Profit = Revenue * 0.9 (Tax approx) - Cost
                         const profit = (rev * 0.9) - cost;
                         
                         c.requiredItems.forEach(req => {
@@ -830,7 +863,7 @@
                 this.renderWishlist();
             },
             
-            // LOGIC v0.61: Accurate Best Price Calculation
+            // NEW: Get Best Price logic (Flea vs Trader LL)
             getBestPrice(itemId) {
                 const data = this.data.itemFullPriceData.get(itemId);
                 if (!data) return { price: 0, source: 'unknown' };
@@ -841,17 +874,19 @@
 
                 if (data.buyFor) {
                     data.buyFor.forEach(offer => {
-                        if (offer.source === 'fleaMarket') return; 
+                        if (offer.source === 'fleaMarket') return; // Handled by avg24hPrice usually, or specific offer
                         
+                        // Check Trader LL
                         const traderName = offer.vendor.name;
-                        const userLL = this.data.config.traderLevels[traderName] || 4; 
+                        const userLL = this.data.config.traderLevels[traderName] || 4; // Default to max if unknown trader
                         
+                        // Check requirements for Loyalty Level
                         const llReq = offer.requirements.find(r => r.type === 'loyaltyLevel');
                         const reqLevel = llReq ? llReq.value : 1;
 
                         if (userLL >= reqLevel) {
-                            if (offer.priceRUB < bestPrice) {
-                                bestPrice = offer.priceRUB;
+                            if (offer.price < bestPrice) {
+                                bestPrice = offer.price;
                                 source = 'trader';
                                 vendor = `${traderName} LL${reqLevel}`;
                             }
@@ -859,6 +894,7 @@
                     });
                 }
                 
+                // If avg24hPrice is 0 (non-flea item) and no trader offers, price is effectively unknown/0
                 if (bestPrice === 999999999 && data.avg24hPrice === 0) bestPrice = 0;
 
                 return { price: bestPrice, source, vendor };
@@ -903,6 +939,7 @@
                 if(saved) {
                     try {
                         const parsed = JSON.parse(saved);
+                        // Merge with defaults to ensure new fields exist
                         this.data.config = { ...this.data.config, ...parsed };
                     } catch(e) { console.error("Config Load Error", e); }
                 }
@@ -914,17 +951,19 @@
                 if(this.data.config.gameMode === mode) return;
                 this.data.config.gameMode = mode;
                 this.saveConfig();
-                this.fetchLiveStats();
+                this.fetchLiveStats(); // Re-sync with new mode
             },
             updateTraderLevel(trader, level) {
                 this.data.config.traderLevels[trader] = parseInt(level);
                 this.saveConfig();
+                // Re-calculate craft costs as they depend on LL
                 this.recalcCrafts();
-                this.renderMarket();
+                this.renderMarket(); // Re-render to update barter locks
                 this.renderCrafts();
             },
             
             recalcCrafts() {
+                // Re-run the profit calculation logic
                 this.data.crafts = this.data.crafts.map(c => {
                     const cost = c.requiredItems.reduce((acc, req) => {
                         const bestPrice = this.getBestPrice(req.item.id);
@@ -937,11 +976,13 @@
             },
 
             renderConfigUI() {
+                // Game Mode
                 const radioPve = document.querySelector(`input[name="gameMode"][value="pve"]`);
                 const radioReg = document.querySelector(`input[name="gameMode"][value="regular"]`);
                 if(radioPve) radioPve.checked = this.data.config.gameMode === 'pve';
                 if(radioReg) radioReg.checked = this.data.config.gameMode === 'regular';
 
+                // Traders
                 const container = document.getElementById('settings-trader-grid');
                 if(container) {
                     container.innerHTML = this.consts.tradersList.map(t => {
@@ -1011,6 +1052,7 @@
                 this.renderWishlist();
             },
 
+            // --- AMMO VIEWER FUNCTIONS ---
             switchAmmoView(view) {
                 this.data.ammoConfig.view = view;
                 const btnChart = document.getElementById('av-chart');
@@ -1147,6 +1189,7 @@
                 });
             },
 
+            // --- RENDERERS ---
             renderWishlist() {
                 const grid = document.getElementById('wishlist-grid');
                 if(!grid) return;
@@ -1438,7 +1481,416 @@
                 });
             },
 
+            // --- HIDEOUT MANAGER ---
+            renderHideout() {
+                const grid = document.getElementById('hideout-grid');
+                if(!grid) return;
+                
+                const stations = this.data.hideoutStationsRaw;
+                if (!stations || stations.length === 0) { grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Waiting for Data...</div>'; return; }
+
+                stations.sort((a, b) => a.name.localeCompare(b.name));
+                grid.innerHTML = '';
+                
+                let totalStations = stations.length;
+                let maxLevelSum = 0;
+                let currentLevelSum = 0;
+
+                stations.forEach(station => {
+                    const savedLevel = this.data.userHideoutLevels[station.id] || 0;
+                    const maxLevel = Math.max(...station.levels.map(l => l.level));
+                    maxLevelSum += maxLevel;
+                    currentLevelSum += savedLevel;
+                    
+                    const nextLevel = savedLevel + 1;
+                    const nextLevelData = station.levels.find(l => l.level === nextLevel);
+                    const isMaxed = savedLevel >= maxLevel;
+
+                    let reqHtml = '';
+                    if (isMaxed) {
+                        reqHtml = `<div class="text-tarkov-green text-xs font-bold text-center py-4 bg-green-900/10 rounded border border-green-900/30">MAX LEVEL REACHED</div>`;
+                    } else if (nextLevelData) {
+                        const items = nextLevelData.itemRequirements.map(req => `<div class="flex items-center gap-2 bg-[#111] p-1.5 rounded border border-[#333]"><img src="${req.item.iconLink}" loading="lazy" alt="${req.item.name}" class="w-6 h-6 object-contain bg-[#222] rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-[10px] text-gray-300 truncate">${req.item.name}</div><div class="text-[9px] text-gray-500">x${req.count}</div></div></div>`).join('');
+                        reqHtml = `<div class="space-y-1 mt-2 mb-1"><div class="text-[9px] text-gray-500 uppercase">Requirements for Lv${nextLevel}</div><div class="grid grid-cols-2 gap-1">${items}</div></div>`;
+                    } else { reqHtml = `<div class="text-gray-500 text-xs text-center py-4">Data not available</div>`; }
+
+                    const card = document.createElement('div');
+                    card.className = `tarkov-panel rounded p-3 border ${isMaxed ? 'border-tarkov-green/30' : 'border-tarkov-border'} flex flex-col`;
+                    card.innerHTML = `<div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm ${isMaxed ? 'text-tarkov-green' : 'text-gray-200'} truncate pr-2">${station.name}</h3><div class="flex items-center gap-1 bg-[#111] rounded p-1 border border-[#333]"><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', -1)" ${savedLevel <= 0 ? 'disabled' : ''}>-</button><span class="w-8 text-center font-mono font-bold ${isMaxed ? 'text-tarkov-green' : 'text-white'}">${savedLevel}</span><button class="hideout-level-btn" onclick="app.updateHideoutLevel('${station.id}', 1)" ${isMaxed ? 'disabled' : ''}>+</button></div></div><div class="flex-1">${reqHtml}</div>`;
+                    grid.appendChild(card);
+                });
+
+                const progress = totalStations > 0 ? Math.round((currentLevelSum / maxLevelSum) * 100) : 0;
+                this.safeUpdateHTML('dash-hideout-count', `${progress}%`);
+                document.getElementById('hideout-progress-text').innerText = `${progress}% Completed`;
+                document.getElementById('hideout-progress-bar').style.width = `${progress}%`;
+            },
+
+            updateHideoutLevel(stationId, change) {
+                const stations = this.data.hideoutStationsRaw;
+                const station = stations.find(s => s.id === stationId);
+                if (!station) return;
+                const maxLevel = Math.max(...station.levels.map(l => l.level));
+                let current = this.data.userHideoutLevels[stationId] || 0;
+                let next = current + change;
+                if (next < 0) next = 0;
+                if (next > maxLevel) next = maxLevel;
+                this.data.userHideoutLevels[stationId] = next;
+                this.saveHideoutStatus();
+                this.calculateAllRequirements(); 
+                this.renderHideout();
+                this.renderMarket();
+            },
+
+            loadHideoutStatus() { const s = localStorage.getItem('userHideoutLevels'); if (s) { try { this.data.userHideoutLevels = JSON.parse(s); } catch (e) { this.data.userHideoutLevels = {}; } } },
+            saveHideoutStatus() { localStorage.setItem('userHideoutLevels', JSON.stringify(this.data.userHideoutLevels)); },
+
+            // --- GUNSMITH MODULE ---
+            async fetchWeaponData() {
+                const query = `{ items(types: [gun], lang: ja) { id name shortName types } }`;
+                const data = await this.fetchApiData(query);
+                if (data && data.items) {
+                    this.data.weapons = data.items.filter((v,i,a)=>a.findIndex(t=>(t.id === v.id))===i).sort((a, b) => a.name.localeCompare(b.name));
+                    this.setupGunsmith();
+                }
+            },
+
+            setupGunsmith() {
+                const select = document.getElementById('gs-weapon');
+                if(!select) return;
+                if (this.data.weapons.length === 0) { select.innerHTML = `<option value="">Waiting for Sync...</option>`; return; }
+                const groups = this.data.weapons.reduce((g, w) => {
+                    const fam = w.shortName ? w.shortName.split(' ')[0] : 'Other';
+                    if (!g[fam]) g[fam] = [];
+                    g[fam].push(w);
+                    return g;
+                }, {});
+                let opts = `<option value="">Select Weapon...</option>`;
+                for (const gn in groups) {
+                    opts += `<optgroup label="${gn}">`;
+                    groups[gn].forEach(w => opts += `<option value="${w.id}">${w.name}</option>`); 
+                    opts += `</optgroup>`;
+                }
+                select.innerHTML = opts;
+            },
+
+            async buildGun(id) {
+                if (!id) return;
+                this.safeUpdateHTML('gs-builder-area', '<div class="flex justify-center py-10 opacity-50"><div class="loader"></div></div>');
+                this.safeUpdateText('gs-stat-ergo', '-');
+                this.safeUpdateText('gs-stat-recoil', '-');
+                const query = `{ 
+                    items(ids: ["${id}"], lang: ja) {
+                        id name shortName description basePrice width height inspectImageLink gridImageLink
+                        properties { 
+                            ... on ItemPropertiesWeapon { 
+                                ergonomics recoilVertical recoilHorizontal fireRate caliber
+                                defaultPreset { inspectImageLink gridImageLink } 
+                                slots {
+                                    name
+                                    filters { allowedItems { id name shortName gridImageLink properties { ... on ItemPropertiesWeaponMod { ergonomics recoilModifier } } } }
+                                }
+                            }
+                        }
+                    }
+                }`;
+                const data = await this.fetchApiData(query);
+                if (data && data.items && data.items.length > 0) {
+                    this.data.currentBuild = { baseWeapon: data.items[0], attachedParts: [] };
+                    this.renderGunBuilder(this.data.currentBuild);
+                } else {
+                    this.showToast("Failed to load weapon details");
+                    this.safeUpdateHTML('gs-builder-area', '<div class="text-center text-red-500 py-10">Error loading weapon data</div>');
+                }
+            },
+
+            disassemble() {
+                if (!this.data.currentBuild) { this.showToast("Select a weapon first"); return; }
+                this.data.currentBuild.attachedParts = [];
+                this.renderGunBuilder(this.data.currentBuild);
+                this.showToast("Weapon Disassembled");
+            },
+
+            autoAssemble() {
+                if (!this.data.currentBuild) { this.showToast("Select a weapon first"); return; }
+                const targetErgo = parseFloat(document.getElementById('gs-target-ergo').value);
+                const hasTarget = !isNaN(targetErgo);
+                this.showToast(hasTarget ? `Targeting Ergo ~${targetErgo}...` : "Auto-Building (Max Ergo)...");
+                const baseWeapon = this.data.currentBuild.baseWeapon;
+                const slots = baseWeapon.properties?.slots || [];
+                this.data.currentBuild.attachedParts = [];
+                const getItems = (slot) => {
+                    if (!slot.filters) return [];
+                    if (Array.isArray(slot.filters)) { return slot.filters[0] && slot.filters[0].allowedItems ? slot.filters[0].allowedItems : []; }
+                    if (slot.filters.allowedItems) return slot.filters.allowedItems;
+                    return [];
+                };
+                if (hasTarget) {
+                    const slotCandidates = slots.map(slot => {
+                        const items = getItems(slot);
+                        if (!items || items.length === 0) return { slotName: slot.name, items: [] };
+                        return { slotName: slot.name, items: items.sort((a, b) => (b.properties?.ergonomics || 0) - (a.properties?.ergonomics || 0)) };
+                    });
+                    const currentParts = slotCandidates.map(sc => sc.items[0]).filter(p => p); 
+                    const calcErgo = (parts) => {
+                        let e = baseWeapon.properties?.ergonomics || 0;
+                        parts.forEach(p => e += (p.properties?.ergonomics || 0));
+                        return e;
+                    };
+                    let currentTotal = calcErgo(currentParts);
+                    let improved = true;
+                    let loops = 0;
+                    while (improved && currentTotal > targetErgo && loops < 50) {
+                        improved = false;
+                        loops++;
+                        let bestSwap = null;
+                        let minDiff = Math.abs(currentTotal - targetErgo);
+                        for (let i = 0; i < slotCandidates.length; i++) {
+                            const sc = slotCandidates[i];
+                            const currentPart = currentParts.find(p => sc.items.includes(p)); 
+                            if (!currentPart) continue; 
+                            const currentIndex = sc.items.indexOf(currentPart); 
+                            if (currentIndex + 1 < sc.items.length) {
+                                const nextPart = sc.items[currentIndex + 1];
+                                const ergoDiff = (currentPart.properties?.ergonomics || 0) - (nextPart.properties?.ergonomics || 0);
+                                const newTotal = currentTotal - ergoDiff;
+                                const diff = Math.abs(newTotal - targetErgo);
+                                if (diff < minDiff) { minDiff = diff; bestSwap = { index: i, oldPart: currentPart, newPart: nextPart, newTotal: newTotal }; }
+                            }
+                        }
+                        if (bestSwap) {
+                            const oldIdx = currentParts.indexOf(bestSwap.oldPart);
+                            if (oldIdx > -1) { currentParts[oldIdx] = bestSwap.newPart; currentTotal = bestSwap.newTotal; improved = true; }
+                        }
+                    }
+                    currentParts.forEach(p => {
+                        const candidate = slotCandidates.find(sc => sc.items.includes(p));
+                        if(candidate) { this.data.currentBuild.attachedParts.push({ slotName: candidate.slotName, part: p }); }
+                    });
+                } else {
+                    slots.forEach(slot => {
+                        let items = getItems(slot);
+                        if (!items || items.length === 0) return;
+                        items.sort((a, b) => (b.properties?.ergonomics || 0) - (a.properties?.ergonomics || 0));
+                        const bestPart = items[0];
+                        if (bestPart) { this.data.currentBuild.attachedParts.push({ slotName: slot.name, part: bestPart }); }
+                    });
+                }
+                this.renderGunBuilder(this.data.currentBuild);
+                this.showToast("Assembly Complete");
+            },
+
+            renderGunBuilder(build) {
+                const item = build.baseWeapon;
+                const props = item.properties || {};
+                let ergo = props.ergonomics || 0;
+                let recoil = props.recoilVertical || 0;
+                let modSum = 0;
+                build.attachedParts.forEach(ap => {
+                    const pProps = ap.part.properties || {};
+                    if(pProps.ergonomics) ergo += pProps.ergonomics;
+                    if(pProps.recoilModifier) modSum += pProps.recoilModifier;
+                });
+                const finalRecoil = recoil * (1 + (modSum / 100));
+                this.safeUpdateText('gs-stat-ergo', Math.round(ergo));
+                this.safeUpdateText('gs-stat-recoil', Math.round(finalRecoil));
+                let imgUrl = item.properties?.defaultPreset?.inspectImageLink || item.inspectImageLink || item.gridImageLink || '';
+                let caliber = props.caliber ? props.caliber.replace('Caliber', '') : 'Unknown';
+                let html = `
+                    <div class="glass-panel p-4 md:p-6 rounded animate-fade-in relative overflow-hidden group">
+                        <div class="absolute -top-6 -right-6 text-9xl font-bold text-white opacity-[0.03] select-none pointer-events-none transition-transform group-hover:scale-110 duration-700">${item.shortName}</div>
+                        <div class="flex flex-col md:flex-row gap-6 items-start relative z-10">
+                            <div class="w-full md:w-5/12">
+                                <div class="bg-black/20 rounded-lg p-6 border border-gray-800 flex items-center justify-center min-h-[200px] relative">
+                                    <img src="${imgUrl}" loading="lazy" alt="${item.name}" class="w-full h-auto object-contain drop-shadow-2xl" onerror="this.src='https://via.placeholder.com/200x100?text=No+Image'">
+                                </div>
+                                <div class="mt-3 flex justify-between text-[10px] text-gray-500 font-mono px-1"><span>${item.width}x${item.height} CELLS</span><span>${caliber}</span></div>
+                            </div>
+                            <div class="w-full md:w-7/12 space-y-5">
+                                <div>
+                                    <h3 class="text-xl md:text-2xl font-bold text-white leading-tight font-mono">${item.name}</h3>
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                                        <div class="bg-[#0a0a0a] p-2 rounded border border-gray-800"><div class="text-[9px] text-gray-500">RPM</div><div class="text-tarkov-green font-mono font-bold">${props.fireRate || '-'}</div></div>
+                                        <div class="bg-[#0a0a0a] p-2 rounded border border-gray-800"><div class="text-[9px] text-gray-500">H. RECOIL</div><div class="text-gray-300 font-mono">${props.recoilHorizontal || '-'}</div></div>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-800 pt-4">
+                                    <h4 class="text-xs text-gray-500 uppercase font-bold mb-2">Available Slots</h4>
+                                    <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                                        ${(props.slots || []).map(slot => {
+                                            const attached = build.attachedParts.find(p => p.slotName === slot.name);
+                                            return `<div class="bg-black/40 p-2 rounded border border-gray-800 flex justify-between items-center group/slot"><span class="text-xs text-gray-400 font-mono">${slot.name}</span><div class="flex items-center gap-2">${attached ? `<span class="text-tarkov-accent text-xs truncate max-w-[150px]" title="${attached.part.name}">${attached.part.name}</span><button class="text-red-500 hover:text-red-400" onclick="app.removePart('${slot.name}')"><i class="fa-solid fa-times"></i></button>` : `<button class="text-xs bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-gray-300" onclick='app.showParts("${slot.name}")'>Select Part</button>`}</div></div>`;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="gs-part-selector" class="hidden mt-4 border-t border-gray-700 pt-4 animate-fade-in scroll-mt-20"><div class="flex justify-between items-center mb-2"><h4 class="text-xs text-tarkov-accent uppercase font-bold">Select Part</h4><button onclick="document.getElementById('gs-part-selector').classList.add('hidden')" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div id="gs-part-list" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar"></div></div>
+                    </div>
+                `;
+                this.safeUpdateHTML('gs-builder-area', html);
+            },
+
+            showParts(slotName) {
+                const container = document.getElementById('gs-part-selector');
+                const list = document.getElementById('gs-part-list');
+                const title = container.querySelector('h4'); 
+                container.classList.remove('hidden');
+                const slot = this.data.currentBuild.baseWeapon.properties.slots.find(s => s.name === slotName);
+                if(title) title.innerText = `Select Part: ${slotName}`;
+                let items = [];
+                if (slot && slot.filters) {
+                    if (Array.isArray(slot.filters)) { items = slot.filters[0] ? slot.filters[0].allowedItems : []; } 
+                    else if (slot.filters.allowedItems) { items = slot.filters.allowedItems; }
+                }
+                if(!items || items.length === 0) {
+                    list.innerHTML = '<div class="col-span-full text-center text-gray-500 py-4">No compatible parts found for this slot.</div>';
+                    setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+                    return;
+                }
+                this.data.currentSlotCandidates = items;
+                list.innerHTML = items.map(p => `<div class="bg-[#0f0f0f] border border-gray-800 p-2 rounded hover:border-tarkov-accent cursor-pointer flex flex-col items-center gap-1 group transition-all hover:bg-white/5" onclick='app.attachPart("${slotName}", "${p.id}")' title="${p.name}"><img src="${p.gridImageLink}" loading="lazy" alt="${p.name}" class="w-12 h-12 object-contain group-hover:scale-110 transition" onerror="this.style.opacity=0.3"><span class="text-[10px] text-gray-400 text-center truncate w-full group-hover:text-white">${p.name}</span></div>`).join('');
+                setTimeout(() => { container.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+            },
+
+            attachPart(slotName, partId) {
+                const part = this.data.currentSlotCandidates.find(p => p.id === partId);
+                if (!part) return;
+                this.data.currentBuild.attachedParts = this.data.currentBuild.attachedParts.filter(p => p.slotName !== slotName);
+                this.data.currentBuild.attachedParts.push({ slotName, part });
+                this.renderGunBuilder(this.data.currentBuild);
+            },
+
+            removePart(slotName) {
+                this.data.currentBuild.attachedParts = this.data.currentBuild.attachedParts.filter(p => p.slotName !== slotName);
+                this.renderGunBuilder(this.data.currentBuild);
+            },
+
+            // --- GENERAL & HELPERS ---
+            processTaskMetaData() {
+                const traderSet = new Set();
+                const mapSet = new Set();
+                this.data.tasks.forEach(t => {
+                    if(t.trader?.name) traderSet.add(t.trader.name);
+                    if(t.map?.name) mapSet.add(t.map.name);
+                });
+                const trSelect = document.getElementById('filter-trader');
+                if(trSelect) trSelect.innerHTML = '<option value="all">全トレーダー</option>' + Array.from(traderSet).sort().map(t => `<option value="${t}">${t}</option>`).join('');
+                const mapSelect = document.getElementById('filter-map');
+                if(mapSelect) mapSelect.innerHTML = '<option value="all">全マップ</option>' + Array.from(mapSet).sort().map(m => `<option value="${m}">${m}</option>`).join('');
+            },
+
+            renderTasks() {
+                const searchInput = document.getElementById('task-search');
+                const search = searchInput ? searchInput.value.toLowerCase() : '';
+                const trader = document.getElementById('filter-trader')?.value || 'all';
+                const map = document.getElementById('filter-map')?.value || 'all';
+                const type = document.getElementById('filter-type')?.value || 'all';
+                const hideCompleted = document.getElementById('hide-completed')?.checked || false;
+                const sortBy = document.getElementById('sort-by')?.value || 'minPlayerLevel';
+
+                let filtered = this.data.tasks.filter(t => {
+                    const searchTargets = [ t.name, t.map?.name || '', t.trader?.name || '', ...(t.objectives?.map(o => o.description) || []), ...(t.startRewards?.items?.map(i => i.item.name) || []), ...(t.finishRewards?.items?.map(i => i.item.name) || []) ].map(s => (s || '').toLowerCase());
+                    const mSearch = searchTargets.some(s => s.includes(search));
+                    const mTrader = trader === 'all' || t.trader?.name === trader;
+                    const mMap = map === 'all' || t.map?.name === map; 
+                    let mType = true;
+                    if (type === 'kappa') mType = t.kappaRequired;
+                    if (type === 'lightkeeper') mType = t.lightkeeperRequired;
+                    return mSearch && mTrader && mMap && mType;
+                });
+
+                if (hideCompleted) filtered = filtered.filter(t => !t.completed);
+                filtered.sort((a, b) => {
+                    let valA, valB;
+                    if (sortBy === 'trader') { valA = a.trader?.name || ''; valB = b.trader?.name || ''; } 
+                    else if (sortBy === 'name') { valA = a.name; valB = b.name; } 
+                    else { valA = a.minPlayerLevel || 0; valB = b.minPlayerLevel || 0; }
+                    if (typeof valA === 'string') return valA.localeCompare(valB);
+                    return valA - valB;
+                });
+
+                const list = document.getElementById('task-list');
+                if (filtered.length === 0) { list.innerHTML = `<div class="text-center text-gray-500 py-10">No tasks match your criteria.</div>`; return; }
+
+                list.innerHTML = filtered.slice(0, search ? 100 : 50).map(t => {
+                    let rewardsHtml = '';
+                    const processRew = (rew, type) => {
+                        if(!rew) return '';
+                        let html = '';
+                        if(rew.traderStanding) rew.traderStanding.forEach(r => html += `<li>${r.trader.name}: ${r.standing}</li>`);
+                        if(rew.items) rew.items.forEach(i => html += `<li class="flex items-center gap-2 mb-1"><img src="${i.item.gridImageLink || ''}" loading="lazy" class="w-5 h-5 object-contain bg-black/50 rounded" onerror="this.style.display='none'"><span>${i.item.name} x${i.count}</span></li>`);
+                        return html ? `<div class="mt-2"><h4 class="text-xs font-bold text-gray-500 uppercase">${type}</h4><ul class="list-none text-xs text-gray-400">${html}</ul></div>` : '';
+                    };
+                    rewardsHtml += processRew(t.startRewards, 'Start Rewards');
+                    rewardsHtml += processRew(t.finishRewards, 'Finish Rewards');
+                    
+                    let sherpaData = this.consts.sherpaIntelDB[t.name];
+                    let sherpaAdvice = "";
+                    if (sherpaData) {
+                        sherpaAdvice = sherpaData.desc || sherpaData;
+                        if(sherpaData.tips && sherpaData.tips.length > 0) { sherpaAdvice += `<ul class="list-none mt-2 space-y-1">${sherpaData.tips.map(tip => `<li class="text-xs text-blue-300"><i class="fa-solid fa-angle-right mr-1"></i>${tip}</li>`).join('')}</ul>`; }
+                    } else { sherpaAdvice = "No specific advice available."; }
+
+                    // Changed div to button for accessibility
+                    return `
+                    <div class="glass-panel rounded overflow-hidden border-l-2 ${t.kappaRequired ? 'border-tarkov-accent' : 'border-gray-600'}">
+                        <button class="task-accordion-header w-full text-left p-3 flex flex-col sm:flex-row sm:items-center gap-2 cursor-pointer hover:bg-white/5" aria-expanded="false" data-task-id="${t.id}" onclick="app.toggleTaskAccordion(this)">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent" onclick="event.stopPropagation(); app.toggleTaskCompleted('${t.id}')" ${t.completed ? 'checked' : ''}>
+                            <div class="flex-1">
+                                <div class="text-[10px] text-gray-500 uppercase flex items-center gap-2"><span>${t.trader?.name}</span>${t.minPlayerLevel ? '<span class="bg-gray-800 px-1 rounded">Lvl '+t.minPlayerLevel+'</span>' : ''}</div>
+                                <div class="font-bold text-sm text-gray-200">${t.name}</div>
+                                <div class="text-xs text-gray-500"><i class="fa-solid fa-map-location-dot mr-1"></i>${t.map?.name || 'Any'}</div>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 sm:mt-0">
+                                ${t.kappaRequired ? '<span class="px-2 py-0.5 bg-yellow-900/40 text-tarkov-accent text-[10px] font-bold rounded border border-yellow-800/50">KAPPA</span>' : ''}
+                                <i class="task-accordion-icon fa-solid fa-chevron-down transform transition-transform duration-300 ml-auto"></i>
+                            </div>
+                        </button>
+                        <div class="task-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out bg-black/20">
+                            <div class="p-4 border-t border-gray-800 space-y-4">
+                                <div><h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Objectives</h3><ul class="list-disc pl-4 space-y-1 text-sm text-gray-300">${t.objectives?.map(o => `<li>${o.description}</li>`).join('') || '<li>Check wiki</li>'}</ul></div>
+                                ${rewardsHtml}
+                                <div class="bg-blue-900/10 border-l-4 border-blue-600 p-3">
+                                    <h3 class="text-xs font-bold text-blue-400 uppercase mb-1">Sherpa Advice</h3>
+                                    <div class="text-sm text-gray-300 leading-relaxed">${sherpaAdvice}</div>
+                                </div>
+                                <div class="pt-2"><a href="${t.wikiLink || '#'}" target="_blank" class="text-sm text-tarkov-accent hover:underline flex items-center gap-2">Wiki Link <i class="fa-solid fa-external-link-alt"></i></a></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            },
+
+            // --- UTILITIES ---
+            switchTab(id) {
+                ['dashboard', 'tasks', 'gunsmith', 'hideout', 'ammo', 'market', 'wishlist', 'settings'].forEach(t => document.getElementById(`view-${t}`)?.classList.add('hidden'));
+                document.getElementById(`view-${id}`).classList.remove('hidden');
+                document.querySelectorAll('.nav-btn-desktop').forEach(b => {
+                    const active = b.dataset.target === id;
+                    b.classList.toggle('bg-tarkov-border', active);
+                    b.classList.toggle('text-tarkov-accent', active);
+                    b.classList.toggle('border-tarkov-accent', active);
+                    b.classList.toggle('border-transparent', !active);
+                });
+                document.querySelectorAll('.nav-btn-mobile').forEach(b => {
+                    const active = b.dataset.target === id;
+                    b.classList.toggle('mobile-nav-active', active);
+                    b.classList.toggle('text-gray-500', !active);
+                });
+                // Shortcuts handling
+                document.querySelectorAll('.nav-btn-shortcut').forEach(b => {
+                     const active = b.dataset.target === id;
+                     if(active) {
+                        // Optional: Highlight shortcut button if needed
+                     }
+                });
+
+                document.getElementById('main-content').scrollTop = 0;
+            },
+
             setupListeners() {
+                // FIXED: Event Delegation for static buttons
                 const syncBtn = document.getElementById('sync-btn');
                 if(syncBtn) syncBtn.addEventListener('click', () => this.fetchLiveStats());
 
@@ -1451,6 +1903,7 @@
                 });
 
                 document.querySelectorAll('.filter-toggle-btn').forEach(btn => {
+                    // Determine if market or craft filter
                     if(btn.id.includes('craft')) {
                          btn.addEventListener('click', (e) => this.toggleCraftFilter(e.currentTarget.dataset.filter));
                     } else {
@@ -1458,6 +1911,7 @@
                     }
                 });
 
+                // Settings: Game Mode Radio
                 document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
                     radio.addEventListener('change', (e) => this.updateGameMode(e.target.value));
                 });
@@ -1482,6 +1936,7 @@
                 const gsAuto = document.getElementById('gs-auto');
                 if(gsAuto) gsAuto.addEventListener('click', () => this.autoAssemble());
 
+                // Apply debounce to searches
                 ['task-search', 'market-search', 'craft-search'].forEach(id => {
                     const el = document.getElementById(id);
                     if(el) {
