@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EFT Sherpa OS v0.63</title>
+    <title>EFT Sherpa OS v0.63.1</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -150,7 +150,7 @@
     <header class="h-14 bg-tarkov-panel border-b border-tarkov-border flex items-center justify-between px-4 md:px-6 z-50 shrink-0 shadow-md">
         <div class="flex items-center gap-2 md:gap-3">
             <i class="fa-solid fa-layer-group text-tarkov-accent text-lg md:text-xl"></i>
-            <h1 class="font-bold text-base md::text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.63 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
+            <h1 class="font-bold text-base md::text-lg tracking-wider text-tarkov-accent">EFT SHERPA <span class="text-white opacity-60">OS</span> v0.63.1 <span id="header-mode-badge" class="text-[10px] bg-tarkov-green text-black px-1 rounded ml-1 align-top transition-colors">PvE</span></h1>
         </div>
         
         <div class="flex items-center gap-2 md:gap-4">
@@ -202,7 +202,7 @@
             
             <div class="p-4 text-[10px] text-gray-600 text-center mt-auto">
                 INTEGRATED SYSTEM<br>
-                v0.63 (Injector Presets)
+                v0.63.1 (Lazy Load & Caliber Chart)
             </div>
         </nav>
 
@@ -529,9 +529,10 @@
                         </select>
                         
                         <div class="flex items-center gap-2">
-                             <select id="ammo-color-mode" class="flex-1 bg-black/40 border border-gray-600 px-2 py-1.5 rounded text-xs text-white focus:border-tarkov-blue outline-none cursor-pointer">
+                            <select id="ammo-color-mode" class="flex-1 bg-black/40 border border-gray-600 px-2 py-1.5 rounded text-xs text-white focus:border-tarkov-blue outline-none cursor-pointer">
                                 <option value="penetration">Color: Penetration</option>
                                 <option value="source">Color: Source (Trader/Flea)</option>
+                                <option value="caliber">Color: Caliber</option>
                             </select>
                             <button id="ammo-filter-btn" class="px-3 py-1.5 bg-black/40 border border-gray-600 rounded text-xs text-gray-400 hover:text-white hover:border-gray-400 transition" onclick="app.toggleAmmoFilterPanel()" title="Toggle Filters">
                                 <i class="fa-solid fa-filter"></i>
@@ -1382,7 +1383,21 @@
                 if (!ctx) return;
                 if (this.ammoChart) this.ammoChart.destroy();
 
-                const mode = this.data.ammoConfig.colorMode; // 'penetration' or 'source'
+                const mode = this.data.ammoConfig.colorMode; // 'penetration', 'source', 'caliber'
+
+                const caliberColors = {
+                    'Caliber556x45NATO': '#4ade80', // Green
+                    'Caliber762x39': '#ef4444',     // Red
+                    'Caliber545x39': '#f97316',     // Orange
+                    'Caliber762x51': '#3b82f6',     // Blue
+                    'Caliber762x54R': '#a855f7',    // Purple
+                    'Caliber9x19PARA': '#eab308',   // Yellow
+                    'Caliber46x30': '#06b6d4',      // Cyan
+                    'Caliber12g': '#ec4899',        // Pink
+                    'Caliber9x39': '#14b8a6',       // Teal
+                    'Caliber86x70': '#f43f5e',      // Rose (.338)
+                    'Caliber127x55': '#8b5cf6'      // Violet
+                };
 
                 const scatterData = data.map(a => ({
                     x: a.damage,
@@ -1393,7 +1408,9 @@
                 }));
 
                 const getColor = (d) => {
-                    if (mode === 'source') {
+                    if (mode === 'caliber') {
+                        return caliberColors[d.fullData.caliber] || '#6b7280';
+                    } else if (mode === 'source') {
                         const src = d.priceData?.source;
                         if (src === 'trader') return '#4ade80'; // Green
                         if (src === 'flea') return '#60a5fa'; // Blue
@@ -1410,7 +1427,7 @@
                 };
 
                 const backgroundColors = scatterData.map(d => getColor(d));
-                const pointRadii = scatterData.map(d => (mode === 'source' && d.priceData?.source === 'unknown') ? 4 : 6); // Make unavailable dots smaller in source mode
+                const pointRadii = scatterData.map(d => (mode === 'source' && d.priceData?.source === 'unknown') ? 4 : 6); 
 
                 this.ammoChart = new Chart(ctx, {
                     type: 'scatter',
@@ -1437,15 +1454,17 @@
                                 borderColor: '#333',
                                 borderWidth: 1,
                                 padding: 10,
-                                displayColors: false,
+                                displayColors: true,
                                 callbacks: {
                                     label: function(context) {
                                         const p = context.raw;
                                         const pd = p.priceData || { price: 0, vendor: 'Unknown' };
                                         const priceText = pd.price > 0 ? `₽${pd.price.toLocaleString()}` : 'N/A';
+                                        const cal = p.fullData.caliber.replace('Caliber', '');
                                         
                                         return [
                                             `[${p.name}]`,
+                                            `Caliber: ${cal}`,
                                             `Pen: ${p.y}  /  Dmg: ${p.x}`,
                                             `----------------`,
                                             `Vendor: ${pd.vendor}`,
