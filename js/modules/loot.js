@@ -105,10 +105,18 @@ Object.assign(window.app, {
                 </div>
             </td>
             <td class="px-4 py-4 text-right">
-                <div class="flex justify-end gap-1">
-                    <button onclick="app.updateLootCount('${req.id}', -1)" class="w-6 h-6 flex items-center justify-center bg-gray-800 rounded hover:bg-gray-700 text-gray-400">-</button>
-                    <button onclick="app.updateLootCount('${req.id}', 1)" class="w-6 h-6 flex items-center justify-center bg-gray-800 rounded hover:bg-gray-700 text-white">+</button>
-                    <button onclick="app.updateLootCount('${req.id}', ${req.totalCount - current})" class="ml-2 px-2 py-1 text-[9px] bg-tarkov-green/10 text-tarkov-green border border-tarkov-green/20 rounded hover:bg-tarkov-green/20">MAX</button>
+                <div class="flex flex-col items-end gap-2">
+                    <div class="flex justify-end gap-1">
+                        <button onclick="app.updateLootCount('${req.id}', -1)" class="w-6 h-6 flex items-center justify-center bg-gray-800 rounded hover:bg-gray-700 text-gray-400">-</button>
+                        <button onclick="app.updateLootCount('${req.id}', 1)" class="w-6 h-6 flex items-center justify-center bg-gray-800 rounded hover:bg-gray-700 text-white">+</button>
+                        <button onclick="app.updateLootCount('${req.id}', ${req.totalCount - current})" class="ml-2 px-2 py-1 text-[9px] bg-tarkov-green/10 text-tarkov-green border border-tarkov-green/20 rounded hover:bg-tarkov-green/20">MAX</button>
+                    </div>
+                    <div class="flex justify-end gap-1 items-center">
+                        <input type="number" min="0" value="${current}" 
+                            onchange="app.setLootCount('${req.id}', this.value)"
+                            class="w-[52px] h-6 bg-gray-900 border border-gray-700 rounded text-center text-xs text-white focus:border-tarkov-gold outline-none">
+                        <button onclick="app.setLootCount('${req.id}', 0)" class="ml-2 px-2 py-1 text-[9px] bg-red-500/10 text-red-500 border border-red-500/20 rounded hover:bg-red-500/20">Clear</button>
+                    </div>
                 </div>
             </td>
         </tr>`;
@@ -204,6 +212,13 @@ Object.assign(window.app, {
     updateLootCount(itemId, delta) {
         if (!this.lootProgress[itemId]) this.lootProgress[itemId] = 0;
         this.lootProgress[itemId] = Math.max(0, this.lootProgress[itemId] + delta);
+        this.saveLootProgress();
+        this.renderLootManager();
+    },
+
+    setLootCount(itemId, value) {
+        if (!this.lootProgress[itemId]) this.lootProgress[itemId] = 0;
+        this.lootProgress[itemId] = Math.max(0, parseInt(value) || 0);
         this.saveLootProgress();
         this.renderLootManager();
     },
