@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFT Tactical Analyzer - 300M Roubles Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eft: {
+                            bg: '#121311',
+                            panel: '#1e201d',
+                            header: '#2a2d28',
+                            border: '#3b3e38',
+                            text: '#c5c3b9',
+                            highlight: '#a7a992',
+                            accent: '#6c7a52',
+                            alert: '#8b3f3f',
+                            gold: '#b89f5d'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['"Courier New"', 'Courier', 'monospace'],
+                        sans: ['"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #121311; color: #c5c3b9; }
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 9999;
+            position: absolute;
+            pointer-events: none;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(108,122,82,0.1) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            animation: scanline 10s linear infinite;
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        .loading-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .3; }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden">
+    <div class="scanline"></div>
+
+    <header class="bg-eft-header border-b-2 border-eft-accent p-4 shadow-md relative z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-crosshairs text-eft-accent text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wider text-eft-highlight font-mono">TARKOV TACTICAL ANALYZER v3.1</h1>
+            </div>
+            <div class="text-sm text-eft-text font-mono">
+                STATUS: <span id="api-status" class="text-eft-gold">CONNECTING...</span> | TARGET: 300,000,000 ₽
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6 space-y-6 relative z-10">
+        
+        <section class="bg-eft-panel border border-eft-border rounded p-5 border-l-4 border-l-eft-alert shadow-lg">
+            <h2 class="text-lg font-bold mb-3 text-eft-highlight flex items-center">
+                <i class="fa-solid fa-clipboard-list mr-2"></i> ACTION PLAN: 3億ルーブル調達戦略
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div class="bg-eft-bg p-3 rounded border border-eft-border">
+                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-ruler-combined"></i> 1. マス単価の最大化</h3>
+                    <p class="text-gray-400">ポーチやバックパックの限られた容量を最大限に活かすため、常に「1マスあたりの利益（Price per Slot）」が最も高いアイテムを優先して持ち帰る。以下のリアルタイムデータを基準に取捨選択を行う。</p>
+                </div>
+                <div class="bg-eft-bg p-3 rounded border border-eft-border">
+                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-industry"></i> 2. パッシブインカムの確保</h3>
+                    <p class="text-gray-400">HideoutのBitcoin Farm稼働は必須。グラフィックボードの相場とBTC価格を監視し、燃料費を差し引いても黒字になる構成を維持する。合わせてWater CollectorとMoonshineの継続生産を行う。</p>
+                </div>
+                <div class="bg-eft-bg p-3 rounded border border-eft-border">
+                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-person-rifle"></i> 3. ロストの最小化</h3>
+                    <p class="text-gray-400">3億ルーブル到達における最大の障害は「死による装備と戦利品の喪失」である。不要な戦闘を避け、高額アイテム（LedX, GPU等）を取得した場合は即座に脱出ルートへ向かう。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
+                <div class="text-eft-text text-xs font-mono mb-1">PHYSICAL BITCOIN PRICE</div>
+                <div class="text-2xl font-bold text-eft-gold flex items-center">
+                    <i class="fa-brands fa-bitcoin mr-2"></i>
+                    <span id="btc-price" class="loading-pulse">Loading...</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1 font-mono">Trader: Therapist</div>
+            </div>
+            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
+                <div class="text-eft-text text-xs font-mono mb-1">LEDX SKIN TRANSILLUMINATOR</div>
+                <div class="text-2xl font-bold text-eft-highlight flex items-center">
+                    <i class="fa-solid fa-heart-pulse mr-2"></i>
+                    <span id="ledx-price" class="loading-pulse">Loading...</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1 font-mono">Flea Market Avg (24h)</div>
+            </div>
+            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
+                <div class="text-eft-text text-xs font-mono mb-1">GRAPHICS CARD</div>
+                <div class="text-2xl font-bold text-eft-highlight flex items-center">
+                    <i class="fa-solid fa-microchip mr-2"></i>
+                    <span id="gpu-price" class="loading-pulse">Loading...</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1 font-mono">Flea Market Avg (24h)</div>
+            </div>
+            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
+                <div class="text-eft-text text-xs font-mono mb-1">DATA TIMESTAMP</div>
+                <div class="text-xl font-bold text-eft-text flex items-center mt-1">
+                    <i class="fa-regular fa-clock mr-2"></i>
+                    <span id="timestamp" class="loading-pulse font-mono">Loading...</span>
+                </div>
+                <div class="text-xs text-eft-accent mt-1 font-mono">Source: tarkov.dev API</div>
+            </div>
+        </section>
+
+        <section class="bg-eft-panel border border-eft-border rounded shadow-lg overflow-hidden">
+            <div class="bg-eft-header p-3 border-b border-eft-border flex justify-between items-center">
+                <h2 class="text-lg font-bold text-eft-highlight font-mono flex items-center">
+                    <i class="fa-solid fa-sort-amount-down text-eft-accent mr-2"></i> TOP VALUE ITEMS (PER SLOT)
+                </h2>
+                <span class="text-xs text-gray-500 font-mono">※武器・アーマー・コンテナ等を除外</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-eft-bg text-eft-text text-xs font-mono uppercase border-b border-eft-border">
+                            <th class="p-3">Item</th>
+                            <th class="p-3 text-center">Size</th>
+                            <th class="p-3 text-right">Market Price (₽)</th>
+                            <th class="p-3 text-right text-eft-gold">Price / Slot (₽)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-table-body" class="text-sm font-mono">
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-gray-500 loading-pulse">
+                                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br>
+                                FETCHING LIVE DATA FROM TARKOV.DEV...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchTarkovData();
+        });
+
+        const formatRoubles = (num) => {
+            if (!num) return 'N/A';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' ₽';
+        };
+
+        async function fetchTarkovData() {
+            const endpoint = 'https://api.tarkov.dev/graphql';
+            const query = `
+            {
+                items(lang: ja) {
+                    id
+                    name
+                    shortName
+                    width
+                    height
+                    avg24hPrice
+                    types
+                    sellFor {
+                        vendor {
+                            normalizedName
+                        }
+                        price
+                        currency
+                    }
+                }
+            }
+            `;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const { data } = await response.json();
+                processEftData(data.items);
+                
+                document.getElementById('api-status').textContent = 'ONLINE';
+                document.getElementById('api-status').classList.replace('text-eft-gold', 'text-green-500');
+                
+                const now = new Date();
+                document.getElementById('timestamp').textContent = now.toLocaleTimeString('ja-JP', { hour12: false });
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('api-status').textContent = 'CONNECTION FAILED';
+                document.getElementById('api-status').classList.replace('text-eft-gold', 'text-eft-alert');
+                document.getElementById('items-table-body').innerHTML = `
+                    <tr><td colspan="4" class="p-4 text-center text-eft-alert">データの取得に失敗しました。APIサーバーの状態を確認してください。</td></tr>
+                `;
+            }
+        }
+
+        function processEftData(items) {
+            // Target IDs for Dashboard
+            const BTC_ID = "59faff1d86f7746c51718c9c";
+            const LEDX_ID = "5c0530ee86f774697952d952";
+            const GPU_ID = "57347c1124597737fb1379e3";
+
+            let btcData, ledxData, gpuData;
+            const validItems = [];
+
+            // Exclude large or non-loot categories to find dense value items
+            const excludedTypes = ['gun', 'preset', 'armor', 'rig', 'backpack', 'container', 'ammoBox', 'headphones', 'glasses'];
+
+            items.forEach(item => {
+                // Dashboard extraction
+                if (item.id === BTC_ID) btcData = item;
+                if (item.id === LEDX_ID) ledxData = item;
+                if (item.id === GPU_ID) gpuData = item;
+
+                // Filtering for Top Value List
+                if (!item.avg24hPrice || item.avg24hPrice <= 0) return;
+                if (!item.width || !item.height) return;
+                
+                const hasExcludedType = item.types.some(type => excludedTypes.includes(type));
+                if (hasExcludedType) return;
+                
+                // Exclude items that are too cheap to filter out junk
+                if (item.avg24hPrice < 30000) return;
+
+                const slots = item.width * item.height;
+                const pricePerSlot = Math.floor(item.avg24hPrice / slots);
+
+                validItems.push({
+                    name: item.name,
+                    shortName: item.shortName,
+                    slots: slots,
+                    sizeStr: `${item.width}x${item.height}`,
+                    marketPrice: item.avg24hPrice,
+                    pricePerSlot: pricePerSlot
+                });
+            });
+
+            // Update Dashboard
+            if (btcData) {
+                // BTC usually sells to Therapist for best price
+                const therapistSell = btcData.sellFor.find(s => s.vendor.normalizedName === 'therapist' && s.currency === 'RUB');
+                document.getElementById('btc-price').textContent = formatRoubles(therapistSell ? therapistSell.price : btcData.avg24hPrice);
+                document.getElementById('btc-price').classList.remove('loading-pulse');
+            }
+            if (ledxData) {
+                document.getElementById('ledx-price').textContent = formatRoubles(ledxData.avg24hPrice);
+                document.getElementById('ledx-price').classList.remove('loading-pulse');
+            }
+            if (gpuData) {
+                document.getElementById('gpu-price').textContent = formatRoubles(gpuData.avg24hPrice);
+                document.getElementById('gpu-price').classList.remove('loading-pulse');
+            }
+
+            // Sort and Render Table
+            validItems.sort((a, b) => b.pricePerSlot - a.pricePerSlot);
+            const topItems = validItems.slice(0, 20);
+
+            const tbody = document.getElementById('items-table-body');
+            tbody.innerHTML = '';
+
+            topItems.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-eft-border hover:bg-eft-header transition-colors duration-150";
+                
+                let iconClass = "fa-box";
+                if(item.shortName.toLowerCase().includes('key') || item.name.toLowerCase().includes('key')) iconClass = "fa-key";
+                if(item.shortName.toLowerCase().includes('card')) iconClass = "fa-id-card";
+
+                tr.innerHTML = `
+                    <td class="p-3 flex items-center">
+                        <span class="text-gray-500 w-6 text-right mr-3">${index + 1}.</span>
+                        <i class="fa-solid ${iconClass} text-eft-accent mr-3 w-4 text-center"></i>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-200">${item.shortName}</span>
+                            <span class="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md">${item.name}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center text-gray-400">
+                        <div class="flex items-center justify-center space-x-1">
+                            <span>${item.sizeStr}</span>
+                            <span class="text-xs bg-eft-bg px-1 rounded">(${item.slots})</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-right text-gray-300">${formatRoubles(item.marketPrice)}</td>
+                    <td class="p-3 text-right font-bold text-eft-gold">${formatRoubles(item.pricePerSlot)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
