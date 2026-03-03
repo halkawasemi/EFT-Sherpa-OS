@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EFT Tactical Analyzer - 300M Roubles Project</title>
+    <title>EFT Tactical Analyzer - Top 20 Market Radar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -58,96 +58,60 @@
     <div class="scanline"></div>
 
     <header class="bg-eft-header border-b-2 border-eft-accent p-4 shadow-md relative z-10">
-        <div class="container mx-auto flex justify-between items-center">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
             <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-crosshairs text-eft-accent text-2xl"></i>
-                <h1 class="text-xl font-bold tracking-wider text-eft-highlight font-mono">TARKOV TACTICAL ANALYZER v3.1</h1>
+                <i class="fa-solid fa-satellite-dish text-eft-accent text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wider text-eft-highlight font-mono">TARKOV MARKET RADAR</h1>
+                <span class="text-xs bg-eft-bg text-eft-text border border-eft-border px-2 py-1 rounded">TOP 20 MODE</span>
             </div>
-            <div class="text-sm text-eft-text font-mono">
-                STATUS: <span id="api-status" class="text-eft-gold">CONNECTING...</span> | TARGET: 300,000,000 ₽
+            <div class="flex flex-wrap items-center gap-4 text-sm text-eft-text font-mono bg-eft-bg px-3 py-1 rounded border border-eft-border">
+                <div>API: <span id="api-status" class="text-eft-gold">CONNECTING...</span></div>
+                <div><i class="fa-solid fa-rotate text-eft-accent mr-1"></i> <span id="timestamp" class="loading-pulse">--:--:--</span></div>
+                <div><i class="fa-solid fa-database text-eft-accent mr-1"></i> <span id="item-count">0 items</span></div>
             </div>
         </div>
     </header>
 
     <main class="container mx-auto p-4 md:p-6 space-y-6 relative z-10">
         
-        <section class="bg-eft-panel border border-eft-border rounded p-5 border-l-4 border-l-eft-alert shadow-lg">
-            <h2 class="text-lg font-bold mb-3 text-eft-highlight flex items-center">
-                <i class="fa-solid fa-clipboard-list mr-2"></i> ACTION PLAN: 3億ルーブル調達戦略
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div class="bg-eft-bg p-3 rounded border border-eft-border">
-                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-ruler-combined"></i> 1. マス単価の最大化</h3>
-                    <p class="text-gray-400">ポーチやバックパックの限られた容量を最大限に活かすため、常に「1マスあたりの利益（Price per Slot）」が最も高いアイテムを優先して持ち帰る。以下のリアルタイムデータを基準に取捨選択を行う。</p>
-                </div>
-                <div class="bg-eft-bg p-3 rounded border border-eft-border">
-                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-industry"></i> 2. パッシブインカムの確保</h3>
-                    <p class="text-gray-400">HideoutのBitcoin Farm稼働は必須。グラフィックボードの相場とBTC価格を監視し、燃料費を差し引いても黒字になる構成を維持する。合わせてWater CollectorとMoonshineの継続生産を行う。</p>
-                </div>
-                <div class="bg-eft-bg p-3 rounded border border-eft-border">
-                    <h3 class="font-bold text-eft-gold mb-1"><i class="fa-solid fa-person-rifle"></i> 3. ロストの最小化</h3>
-                    <p class="text-gray-400">3億ルーブル到達における最大の障害は「死による装備と戦利品の喪失」である。不要な戦闘を避け、高額アイテム（LedX, GPU等）を取得した場合は即座に脱出ルートへ向かう。</p>
-                </div>
-            </div>
-        </section>
+        <div class="bg-eft-bg border border-eft-border p-3 rounded text-sm text-gray-400 font-mono flex items-start">
+            <i class="fa-solid fa-circle-info text-eft-accent mt-1 mr-3"></i>
+            <p>本システムは tarkov.dev API から全アイテムの市場価格（24時間平均）をリアルタイム取得し、1マスあたりの価値（Price per Slot）で動的にソートしている。異常値（出品枯渇による極端な高騰）もそのまま表示されるため、実際のレイドでの取得優先度は各自の戦術的判断に基づくこと。</p>
+        </div>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
-                <div class="text-eft-text text-xs font-mono mb-1">PHYSICAL BITCOIN PRICE</div>
-                <div class="text-2xl font-bold text-eft-gold flex items-center">
-                    <i class="fa-brands fa-bitcoin mr-2"></i>
-                    <span id="btc-price" class="loading-pulse">Loading...</span>
+        <section>
+            <h2 class="text-lg font-bold text-eft-highlight font-mono flex items-center mb-3 border-b border-eft-border pb-2">
+                <i class="fa-solid fa-crown text-eft-gold mr-2"></i> HIGH VALUE TARGETS: TOP 20
+            </h2>
+            <div id="top20-container" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div class="col-span-full text-center p-10 text-gray-500 loading-pulse font-mono border border-dashed border-eft-border rounded">
+                    <i class="fa-solid fa-radar_node fa-spin text-3xl mb-3 text-eft-accent"></i><br>
+                    INITIALIZING DASHBOARD...
                 </div>
-                <div class="text-xs text-gray-500 mt-1 font-mono">Trader: Therapist</div>
-            </div>
-            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
-                <div class="text-eft-text text-xs font-mono mb-1">LEDX SKIN TRANSILLUMINATOR</div>
-                <div class="text-2xl font-bold text-eft-highlight flex items-center">
-                    <i class="fa-solid fa-heart-pulse mr-2"></i>
-                    <span id="ledx-price" class="loading-pulse">Loading...</span>
-                </div>
-                <div class="text-xs text-gray-500 mt-1 font-mono">Flea Market Avg (24h)</div>
-            </div>
-            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
-                <div class="text-eft-text text-xs font-mono mb-1">GRAPHICS CARD</div>
-                <div class="text-2xl font-bold text-eft-highlight flex items-center">
-                    <i class="fa-solid fa-microchip mr-2"></i>
-                    <span id="gpu-price" class="loading-pulse">Loading...</span>
-                </div>
-                <div class="text-xs text-gray-500 mt-1 font-mono">Flea Market Avg (24h)</div>
-            </div>
-            <div class="bg-eft-panel border border-eft-border p-4 rounded shadow">
-                <div class="text-eft-text text-xs font-mono mb-1">DATA TIMESTAMP</div>
-                <div class="text-xl font-bold text-eft-text flex items-center mt-1">
-                    <i class="fa-regular fa-clock mr-2"></i>
-                    <span id="timestamp" class="loading-pulse font-mono">Loading...</span>
-                </div>
-                <div class="text-xs text-eft-accent mt-1 font-mono">Source: tarkov.dev API</div>
             </div>
         </section>
 
         <section class="bg-eft-panel border border-eft-border rounded shadow-lg overflow-hidden">
             <div class="bg-eft-header p-3 border-b border-eft-border flex justify-between items-center">
                 <h2 class="text-lg font-bold text-eft-highlight font-mono flex items-center">
-                    <i class="fa-solid fa-sort-amount-down text-eft-accent mr-2"></i> TOP VALUE ITEMS (PER SLOT)
+                    <i class="fa-solid fa-list-ol text-eft-accent mr-2"></i> DETAILED LEADERBOARD (TOP 50)
                 </h2>
-                <span class="text-xs text-gray-500 font-mono">※武器・アーマー・コンテナ等を除外</span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-eft-bg text-eft-text text-xs font-mono uppercase border-b border-eft-border">
-                            <th class="p-3">Item</th>
+                            <th class="p-3 w-12 text-center">Rank</th>
+                            <th class="p-3">Item Name</th>
                             <th class="p-3 text-center">Size</th>
-                            <th class="p-3 text-right">Market Price (₽)</th>
+                            <th class="p-3 text-right">Market Avg (₽)</th>
                             <th class="p-3 text-right text-eft-gold">Price / Slot (₽)</th>
                         </tr>
                     </thead>
                     <tbody id="items-table-body" class="text-sm font-mono">
                         <tr>
-                            <td colspan="4" class="p-8 text-center text-gray-500 loading-pulse">
-                                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i><br>
-                                FETCHING LIVE DATA FROM TARKOV.DEV...
+                            <td colspan="5" class="p-10 text-center text-gray-500 loading-pulse">
+                                WAITING FOR DATA STREAM...
                             </td>
                         </tr>
                     </tbody>
@@ -178,13 +142,6 @@
                     height
                     avg24hPrice
                     types
-                    sellFor {
-                        vendor {
-                            normalizedName
-                        }
-                        price
-                        currency
-                    }
                 }
             }
             `;
@@ -208,45 +165,46 @@
                 document.getElementById('api-status').classList.replace('text-eft-gold', 'text-green-500');
                 
                 const now = new Date();
-                document.getElementById('timestamp').textContent = now.toLocaleTimeString('ja-JP', { hour12: false });
+                const timeStr = now.toLocaleTimeString('ja-JP', { hour12: false });
+                document.getElementById('timestamp').textContent = timeStr;
+                document.getElementById('timestamp').classList.remove('loading-pulse');
 
             } catch (error) {
-                console.error('Error fetching data:', error);
-                document.getElementById('api-status').textContent = 'CONNECTION FAILED';
+                console.error('API Error:', error);
+                document.getElementById('api-status').textContent = 'OFFLINE';
                 document.getElementById('api-status').classList.replace('text-eft-gold', 'text-eft-alert');
+                
+                document.getElementById('top20-container').innerHTML = `
+                    <div class="col-span-full text-center p-6 text-eft-alert font-bold border border-eft-alert rounded bg-eft-panel">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>データの取得に失敗した。通信状況を確認しろ。
+                    </div>
+                `;
                 document.getElementById('items-table-body').innerHTML = `
-                    <tr><td colspan="4" class="p-4 text-center text-eft-alert">データの取得に失敗しました。APIサーバーの状態を確認してください。</td></tr>
+                    <tr><td colspan="5" class="p-6 text-center text-eft-alert font-bold">OFFLINE</td></tr>
                 `;
             }
         }
 
         function processEftData(items) {
-            // Target IDs for Dashboard
-            const BTC_ID = "59faff1d86f7746c51718c9c";
-            const LEDX_ID = "5c0530ee86f774697952d952";
-            const GPU_ID = "57347c1124597737fb1379e3";
-
-            let btcData, ledxData, gpuData;
             const validItems = [];
 
-            // Exclude large or non-loot categories to find dense value items
-            const excludedTypes = ['gun', 'preset', 'armor', 'rig', 'backpack', 'container', 'ammoBox', 'headphones', 'glasses'];
+            // 除外カテゴリ（武器、装備品、純粋なルート品ではないもの）
+            const excludedTypes = [
+                'gun', 'preset', 'armor', 'rig', 'backpack', 'container', 
+                'ammoBox', 'headphones', 'glasses', 'mods', 'ammo'
+            ];
 
             items.forEach(item => {
-                // Dashboard extraction
-                if (item.id === BTC_ID) btcData = item;
-                if (item.id === LEDX_ID) ledxData = item;
-                if (item.id === GPU_ID) gpuData = item;
-
-                // Filtering for Top Value List
+                // 基本的なデータ欠損を弾く
                 if (!item.avg24hPrice || item.avg24hPrice <= 0) return;
                 if (!item.width || !item.height) return;
                 
+                // カテゴリによる除外
                 const hasExcludedType = item.types.some(type => excludedTypes.includes(type));
                 if (hasExcludedType) return;
                 
-                // Exclude items that are too cheap to filter out junk
-                if (item.avg24hPrice < 30000) return;
+                // ガラクタを弾くための最低市場価格ライン（異常値対策も含め50,000ルーブル以上とする）
+                if (item.avg24hPrice < 50000) return;
 
                 const slots = item.width * item.height;
                 const pricePerSlot = Math.floor(item.avg24hPrice / slots);
@@ -257,30 +215,65 @@
                     slots: slots,
                     sizeStr: `${item.width}x${item.height}`,
                     marketPrice: item.avg24hPrice,
-                    pricePerSlot: pricePerSlot
+                    pricePerSlot: pricePerSlot,
+                    types: item.types
                 });
             });
 
-            // Update Dashboard
-            if (btcData) {
-                // BTC usually sells to Therapist for best price
-                const therapistSell = btcData.sellFor.find(s => s.vendor.normalizedName === 'therapist' && s.currency === 'RUB');
-                document.getElementById('btc-price').textContent = formatRoubles(therapistSell ? therapistSell.price : btcData.avg24hPrice);
-                document.getElementById('btc-price').classList.remove('loading-pulse');
-            }
-            if (ledxData) {
-                document.getElementById('ledx-price').textContent = formatRoubles(ledxData.avg24hPrice);
-                document.getElementById('ledx-price').classList.remove('loading-pulse');
-            }
-            if (gpuData) {
-                document.getElementById('gpu-price').textContent = formatRoubles(gpuData.avg24hPrice);
-                document.getElementById('gpu-price').classList.remove('loading-pulse');
-            }
-
-            // Sort and Render Table
+            // マス単価で降順ソート
             validItems.sort((a, b) => b.pricePerSlot - a.pricePerSlot);
-            const topItems = validItems.slice(0, 20);
+            
+            document.getElementById('item-count').textContent = `${validItems.length} items parsed`;
 
+            renderTop20Dashboard(validItems.slice(0, 20));
+            renderTable(validItems.slice(0, 50));
+        }
+
+        function renderTop20Dashboard(topItems) {
+            const container = document.getElementById('top20-container');
+            container.innerHTML = '';
+
+            topItems.forEach((item, index) => {
+                const rank = index + 1;
+                
+                // ランクに応じたカラーリング設定
+                let borderColor = 'border-eft-border hover:border-eft-accent';
+                let rankBg = 'bg-eft-border text-eft-text';
+                let priceColor = 'text-eft-highlight';
+                
+                if (rank === 1) {
+                    borderColor = 'border-eft-gold shadow-[0_0_10px_rgba(184,159,93,0.2)]';
+                    rankBg = 'bg-eft-gold text-eft-bg';
+                    priceColor = 'text-eft-gold';
+                } else if (rank === 2) {
+                    borderColor = 'border-gray-400';
+                    rankBg = 'bg-gray-400 text-eft-bg';
+                    priceColor = 'text-gray-300';
+                } else if (rank === 3) {
+                    borderColor = 'border-[#cd7f32]'; // Bronze
+                    rankBg = 'bg-[#cd7f32] text-eft-bg';
+                    priceColor = 'text-[#cd7f32]';
+                }
+
+                const card = document.createElement('div');
+                card.className = `bg-eft-panel border ${borderColor} p-3 rounded shadow relative overflow-hidden transition duration-200`;
+                
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 ${rankBg} font-bold text-[10px] px-2 py-0.5 rounded-bl">#${rank}</div>
+                    <div class="text-eft-text text-xs font-bold font-mono mb-1 truncate pr-6" title="${item.name}">${item.shortName}</div>
+                    <div class="${priceColor} font-bold flex items-end">
+                        <span class="text-lg leading-none">${formatRoubles(item.pricePerSlot)}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1.5 font-mono flex justify-between border-t border-eft-border pt-1">
+                        <span title="Size"><i class="fa-solid fa-up-right-and-down-left-from-center mr-1"></i>${item.sizeStr}</span>
+                        <span title="Total Price Avg"><i class="fa-solid fa-tag mr-1"></i>${(item.marketPrice/1000).toFixed(1)}k</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderTable(topItems) {
             const tbody = document.getElementById('items-table-body');
             tbody.innerHTML = '';
 
@@ -289,25 +282,26 @@
                 tr.className = "border-b border-eft-border hover:bg-eft-header transition-colors duration-150";
                 
                 let iconClass = "fa-box";
-                if(item.shortName.toLowerCase().includes('key') || item.name.toLowerCase().includes('key')) iconClass = "fa-key";
-                if(item.shortName.toLowerCase().includes('card')) iconClass = "fa-id-card";
+                if(item.types.includes('keys')) iconClass = "fa-key";
+                else if(item.types.includes('medical')) iconClass = "fa-kit-medical text-red-400";
+                else if(item.types.includes('barter')) iconClass = "fa-recycle text-gray-400";
+                else if(item.types.includes('provisions')) iconClass = "fa-bottle-water text-blue-400";
 
                 tr.innerHTML = `
+                    <td class="p-3 text-center text-gray-500 font-bold">${index + 1}</td>
                     <td class="p-3 flex items-center">
-                        <span class="text-gray-500 w-6 text-right mr-3">${index + 1}.</span>
                         <i class="fa-solid ${iconClass} text-eft-accent mr-3 w-4 text-center"></i>
                         <div class="flex flex-col">
                             <span class="font-bold text-gray-200">${item.shortName}</span>
-                            <span class="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md">${item.name}</span>
+                            <span class="text-xs text-gray-500 truncate max-w-[200px] sm:max-w-md" title="${item.name}">${item.name}</span>
                         </div>
                     </td>
                     <td class="p-3 text-center text-gray-400">
                         <div class="flex items-center justify-center space-x-1">
                             <span>${item.sizeStr}</span>
-                            <span class="text-xs bg-eft-bg px-1 rounded">(${item.slots})</span>
                         </div>
                     </td>
-                    <td class="p-3 text-right text-gray-300">${formatRoubles(item.marketPrice)}</td>
+                    <td class="p-3 text-right text-gray-400">${formatRoubles(item.marketPrice)}</td>
                     <td class="p-3 text-right font-bold text-eft-gold">${formatRoubles(item.pricePerSlot)}</td>
                 `;
                 tbody.appendChild(tr);
