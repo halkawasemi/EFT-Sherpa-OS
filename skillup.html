@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFT Skill Mastery Guide 2026 - Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            background-color: #0f1113; 
+            color: #e2e8f0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+        }
+        .card { 
+            background: #1a1d21; 
+            border: 1px solid #2d3748; 
+            transition: all 0.2s ease; 
+        }
+        .card:hover { 
+            transform: translateY(-2px); 
+            border-color: #4a5568; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        .tab-active { 
+            border-bottom: 2px solid #ed8936; 
+            color: #ed8936; 
+            background-color: rgba(237, 137, 54, 0.05);
+        }
+        .skill-list-item { 
+            border-left: 3px solid #ed8936; 
+            padding-left: 1rem;
+        }
+        .alert-banner { 
+            background: linear-gradient(90deg, #2d3748 0%, #1a202c 100%); 
+        }
+        /* Modal Styles */
+        #operator-message {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="operator-message" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="card max-w-lg w-full p-6 rounded-xl border-l-4 border-l-orange-500 shadow-2xl relative">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-user-secret text-2xl text-orange-500 mr-3"></i>
+                <h2 class="text-xl font-bold text-white">Message from Veteran Operator</h2>
+            </div>
+            <p class="text-gray-300 mb-4 leading-relaxed">
+                レイドでの生存率を上げたいか。賢明な判断だ。タルコフにおいて「スキル」は銃の腕前と同じか、それ以上に生死を分ける。<br><br>
+                2026年現在の環境ではスキルレベリングの減衰仕様が厳格化されている。闇雲に長時間プレイするのではなく、<strong class="text-orange-400">「短時間で効率よく稼ぎ、リセットを待つ」</strong>のが鉄則だ。データをまとめた。確認しろ。
+            </p>
+            <button onclick="document.getElementById('operator-message').style.display='none'" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded transition">
+                端末にアクセスする
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <h1 class="text-3xl font-bold tracking-tight text-white flex items-center">
+                    <i class="fas fa-chart-network mr-3 text-orange-500"></i>
+                    Skill Mastery Intelligence
+                </h1>
+                <div class="flex gap-2">
+                    <span class="bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1 rounded text-xs font-mono">
+                        <i class="fas fa-clock mr-1"></i> Data: 2026/03/01
+                    </span>
+                    <span class="bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1 rounded text-xs font-mono">
+                        <i class="fas fa-code-branch mr-1"></i> Ver: 1.0.x+
+                    </span>
+                </div>
+            </div>
+            <div class="alert-banner p-4 rounded-lg border border-gray-700 flex items-start gap-4">
+                <i class="fas fa-exclamation-triangle text-orange-500 mt-1"></i>
+                <div>
+                    <h3 class="font-bold text-white mb-1">Executive Summary: 減衰（Diminishing Returns）の制約</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">
+                        レイド開始直後は経験値効率が129%（青矢印）となるが、特定スキルを連続で上げると即座に減衰が始まる。約5分間そのスキルを放置すればリセットされるが、基本的には1レイドで複数スキルをローテーションするか、さっさと生還して次のレイドを回すのが最高効率だ。
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-800 pb-2">Preparation Phase</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="card p-5 rounded-xl">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-white">Hideout: Library</h3>
+                    <i class="fas fa-book text-blue-400"></i>
+                </div>
+                <p class="text-sm text-gray-400">建設必須。すべての実践スキル（Physical, Mental等）の獲得経験値にパッシブボーナスが乗る。</p>
+            </div>
+            <div class="card p-5 rounded-xl">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-white">Hideout: Air Filtering Unit</h3>
+                    <i class="fas fa-fan text-teal-400"></i>
+                </div>
+                <p class="text-sm text-gray-400">FP-100フィルターをセットしろ。Physicalスキル（筋力・持久力）の上昇率が飛躍的にアップする。</p>
+            </div>
+            <div class="card p-5 rounded-xl">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-bold text-white">Hideout: Gym</h3>
+                    <i class="fas fa-dumbbell text-orange-400"></i>
+                </div>
+                <p class="text-sm text-gray-400">レイド外での筋力・持久力上げ。QTEミニゲームを失敗するまで回せ。腕の骨折には注意が必要だ。</p>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-800 pb-2">Skill Tactics</h2>
+        <div class="mb-6 bg-gray-900 rounded-lg p-1 inline-flex w-full overflow-x-auto">
+            <button onclick="showTab('physical')" id="tab-physical" class="px-6 py-2.5 text-sm font-medium rounded-md transition tab-active whitespace-nowrap flex-1 text-center">
+                <i class="fas fa-running mr-2"></i>身体能力 (Physical)
+            </button>
+            <button onclick="showTab('mental')" id="tab-mental" class="px-6 py-2.5 text-sm font-medium rounded-md transition text-gray-400 hover:text-white whitespace-nowrap flex-1 text-center">
+                <i class="fas fa-brain mr-2"></i>精神・探索 (Mental)
+            </button>
+            <button onclick="showTab('combat')" id="tab-combat" class="px-6 py-2.5 text-sm font-medium rounded-md transition text-gray-400 hover:text-white whitespace-nowrap flex-1 text-center">
+                <i class="fas fa-crosshairs mr-2"></i>戦闘・技術 (Combat/Tech)
+            </button>
+        </div>
+
+        <div id="content-physical" class="space-y-4">
+            <div class="card p-6 rounded-xl">
+                <div class="space-y-6">
+                    <div class="skill-list-item">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-lg font-bold text-white">持久力 (Endurance)</h4>
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400">最重要</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-2">スタミナ最大値と回復速度の上昇。息止め時間増加。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 装備重量が「白」（過荷重ではない状態）で走り続ける。レイド開始直後、青矢印の状態でスタミナゲージを1本使い切るまで走るのが最も効率的。
+                        </div>
+                    </div>
+
+                    <div class="skill-list-item">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-lg font-bold text-white">筋力 (Strength)</h4>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-2">ジャンプ力向上、ダッシュ速度上昇、装備重量の軽減。Eliteで武器重量が実質ゼロになる。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 装備重量が「黄」（過荷重状態）で歩く、走る。またはグレネード投擲、近接攻撃を当てる。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> 安価な散弾銃の弾（Buckshot等）やドキュメントケースにマニュアルを入れてバックパックに詰め、わざと過荷重で出撃しろ。スタミナを1本消費したら重りを捨て、今度はEndurance上げに移行する。
+                        </div>
+                    </div>
+
+                    <div class="skill-list-item">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="text-lg font-bold text-white">代謝 (Metabolism)</h4>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-2">飲食の効果上昇。Eliteで脱水・エネルギー枯渇によるダメージが無効化される。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 水分・エネルギーが減っている状態で飲食する。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> レイド内で見つけた食料（マヨネーズやコンデンスミルク等）は積極的に消費しろ。マヨネーズで水分を枯渇させ、持ち込んだ水で回復させるループが有効だ。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-mental" class="hidden space-y-4">
+            <div class="card p-6 rounded-xl">
+                <div class="space-y-6">
+                    <div class="skill-list-item">
+                        <h4 class="text-lg font-bold text-white mb-1">探索 (Search) & 注意 (Attention)</h4>
+                        <p class="text-sm text-gray-300 mb-2">コンテナの検索速度向上（Search）と、アイテムを自動で発見する確率の向上（Attention）。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> とにかくコンテナ、死体、ジャケット、隠しスタッシュを開けて中身を調べる。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> Streets of TarkovやReserveのファイルキャビネット（4段引き出し）は1段ずつ経験値が入るため、レベリングの宝庫だ。見つけたら全て開けろ。
+                        </div>
+                    </div>
+
+                    <div class="skill-list-item">
+                        <h4 class="text-lg font-bold text-white mb-1">知性 (Intellect)</h4>
+                        <p class="text-sm text-gray-300 mb-2">アイテム鑑定速度の上昇。武器修理の品質向上。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 未知のアイテムを「Examine」する。武器修理キットやアーマー修理キットで装備を直す。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> ワイプ序盤はFenceの店に並んでいる未知のアイテムを片っ端からExamineしろ。中盤以降は、SCAVから奪った耐久の減った武器を修理キットでこまめに直すのが一番確実だ。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-combat" class="hidden space-y-4">
+            <div class="card p-6 rounded-xl">
+                <div class="space-y-6">
+                    <div class="skill-list-item">
+                        <h4 class="text-lg font-bold text-white mb-1">武器熟練度 (Weapon Skills / Assault Rifles etc.)</h4>
+                        <p class="text-sm text-gray-300 mb-2">リロード速度、エイム速度の向上。反動の軽減。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 敵（PMC、SCAV、ボス）に弾薬を命中させる。リロード操作を行う。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> 経験値は「与ダメージ」ではなく「命中回数」に依存する。レベリングだけが目的なら、小口径の弾薬をSCAVの脚（アーマーのない部位）に何発も撃ち込むのが理論上は早い。
+                        </div>
+                    </div>
+
+                    <div class="skill-list-item">
+                        <h4 class="text-lg font-bold text-white mb-1">ハイドアウト管理 (Hideout Management & Crafting)</h4>
+                        <p class="text-sm text-gray-300 mb-2">燃料やフィルターの消費速度低下。クラフト時間の短縮。</p>
+                        <div class="bg-gray-800 p-3 rounded-md border border-gray-700 text-sm text-gray-400">
+                            <strong class="text-orange-400">実行手順:</strong> 各設備でアイテムをクラフトする。燃料・フィルターを消費し続ける。<br>
+                            <span class="text-blue-400"><i class="fas fa-lightbulb mr-1 mt-2"></i> ベテランのコツ:</span> クラフトスキルは「完了したアイテムを受け取る瞬間」に入る。さらに、同じレシピを連続で行うと経験値が減衰する。WorkbenchやMedstationで、常に2種類の異なるレシピを交互に回す（ローテーションする）のが鉄則だ。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-800 pb-2">Action Item: レイド出撃前ルーチン</h2>
+            <div class="bg-[#1a1d21] border border-[#2d3748] p-6 rounded-xl">
+                <ul class="space-y-3">
+                    <li class="flex items-center text-gray-300 hover:text-white transition cursor-pointer" onclick="this.querySelector('i').classList.toggle('fa-square'); this.querySelector('i').classList.toggle('fa-check-square'); this.querySelector('i').classList.toggle('text-gray-500'); this.querySelector('i').classList.toggle('text-green-500');">
+                        <i class="far fa-square text-xl mr-3 text-gray-500"></i>
+                        <span>ハイドアウトの発電機は稼働しているか？ (Hideout Management)</span>
+                    </li>
+                    <li class="flex items-center text-gray-300 hover:text-white transition cursor-pointer" onclick="this.querySelector('i').classList.toggle('fa-square'); this.querySelector('i').classList.toggle('fa-check-square'); this.querySelector('i').classList.toggle('text-gray-500'); this.querySelector('i').classList.toggle('text-green-500');">
+                        <i class="far fa-square text-xl mr-3 text-gray-500"></i>
+                        <span>クラフト完了品を受け取り、別のレシピを開始したか？ (Crafting)</span>
+                    </li>
+                    <li class="flex items-center text-gray-300 hover:text-white transition cursor-pointer" onclick="this.querySelector('i').classList.toggle('fa-square'); this.querySelector('i').classList.toggle('fa-check-square'); this.querySelector('i').classList.toggle('text-gray-500'); this.querySelector('i').classList.toggle('text-green-500');">
+                        <i class="far fa-square text-xl mr-3 text-gray-500"></i>
+                        <span>重量調整用の「捨ててもいい重り（バックショット等）」をバックパックに入れたか？ (Strength)</span>
+                    </li>
+                    <li class="flex items-center text-gray-300 hover:text-white transition cursor-pointer" onclick="this.querySelector('i').classList.toggle('fa-square'); this.querySelector('i').classList.toggle('fa-check-square'); this.querySelector('i').classList.toggle('text-gray-500'); this.querySelector('i').classList.toggle('text-green-500');">
+                        <i class="far fa-square text-xl mr-3 text-gray-500"></i>
+                        <span>レイド内で消費するための水・食料は持ったか？ (Metabolism)</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all content blocks
+            document.getElementById('content-physical').classList.add('hidden');
+            document.getElementById('content-mental').classList.add('hidden');
+            document.getElementById('content-combat').classList.add('hidden');
+            
+            // Show selected block
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            
+            // Reset all tab styles
+            const tabs = ['physical', 'mental', 'combat'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                btn.classList.remove('tab-active');
+                btn.classList.add('text-gray-400');
+                btn.classList.remove('text-white');
+            });
+            
+            // Set active tab style
+            const activeBtn = document.getElementById('tab-' + tabId);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('text-gray-400');
+            activeBtn.classList.add('text-white');
+        }
+    </script>
+</body>
+</html>
