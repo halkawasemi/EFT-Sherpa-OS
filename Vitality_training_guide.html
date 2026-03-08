@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFT Vitality Training Guide 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0d0d0d; color: #e0e0e0; font-family: 'Inter', sans-serif; }
+        .card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; transition: all 0.3s ease; }
+        .card:hover { border-color: #d1a11e; }
+        .accent-border { border-left: 4px solid #d1a11e; }
+        .tab-active { border-bottom: 2px solid #d1a11e; color: #d1a11e; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="mb-8 border-b border-gray-800 pb-6">
+        <div class="flex items-center gap-4 mb-2">
+            <i class="fas fa-heartbeat text-red-600 text-3xl"></i>
+            <h1 class="text-3xl font-bold uppercase tracking-widest">Vitality Skill Optimization</h1>
+        </div>
+        <p class="text-gray-400 max-w-2xl">
+            「生命力（Vitality）」は、出血耐性と部位破壊時の即死率を低下させる。ハイドアウト（Medstation Lv3）やJaegerタスクの必須条件だ。
+            <span class="text-yellow-500 font-bold block mt-1 underline">※2026年3月8日時点のVer 1.0/最新パッチ準拠情報</span>
+        </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card p-5 accent-border">
+            <h3 class="text-sm uppercase text-gray-500 mb-1">主要な獲得ソース</h3>
+            <p class="text-xl font-bold italic">「ダメージの蓄積」</p>
+            <p class="text-xs text-gray-400 mt-2">5ダメージ受けるごとに 0.01 XP。出血発生時に 0.3 XP。</p>
+        </div>
+        <div class="card p-5 accent-border">
+            <h3 class="text-sm uppercase text-gray-500 mb-1">効率化の鍵</h3>
+            <p class="text-xl font-bold italic">「減衰とリセット」</p>
+            <p class="text-xs text-gray-400 mt-2">レイド開始直後が最も倍率が高い。獲得量が減ったら即脱出か自決しろ。</p>
+        </div>
+        <div class="card p-5 accent-border">
+            <h3 class="text-sm uppercase text-gray-500 mb-1">必須設備</h3>
+            <p class="text-xl font-bold italic">「FP-100 エアフィルター」</p>
+            <p class="text-xs text-gray-400 mt-2">物理スキル獲得量を約40%ブーストする。パワーレベリングには不可欠だ。</p>
+        </div>
+    </div>
+
+    <section class="card overflow-hidden">
+        <div class="flex border-b border-gray-800 bg-black/50">
+            <button onclick="switchTab('method')" id="tab-method" class="px-6 py-4 text-sm font-bold uppercase tab-active">稼ぎ方の手順</button>
+            <button onclick="switchTab('items')" id="tab-items" class="px-6 py-4 text-sm font-bold uppercase text-gray-500 hover:text-white">推奨物資</button>
+            <button onclick="switchTab('logic')" id="tab-logic" class="px-6 py-4 text-sm font-bold uppercase text-gray-500 hover:text-white">システム解説</button>
+        </div>
+
+        <div id="content-method" class="p-6 space-y-6">
+            <h2 class="text-xl font-bold text-yellow-500 mb-4"><i class="fas fa-bolt mr-2"></i>最短レベリング・プロトコル</h2>
+            
+            <div class="bg-gray-900/50 p-4 rounded border border-gray-800">
+                <h3 class="font-bold text-white mb-2 underline italic text-lg italic">Method A: 「有刺鉄線・ダンス」</h3>
+                <ol class="list-decimal list-inside text-gray-300 space-y-2">
+                    <li><span class="text-white font-bold">Shoreline</span> または <span class="text-white font-bold">Customs</span> の静かな場所にある有刺鉄線へ向かえ。</li>
+                    <li><span class="text-green-500">Propital</span> を刺し、有刺鉄線の中で体を擦り続ける。</li>
+                    <li><span class="text-white font-bold">Grizzly</span> で回復しつつ、ダメージを受け続けろ。</li>
+                    <li>獲得XPに赤い下矢印（減衰）が出たらレイドを終了しろ。</li>
+                </ol>
+            </div>
+
+            <div class="bg-gray-900/50 p-4 rounded border border-gray-800">
+                <h3 class="font-bold text-white mb-2 underline italic text-lg italic">Method B: 「出血放置・プロトコル」</h3>
+                <ul class="list-disc list-inside text-gray-300 space-y-2">
+                    <li>軽度出血（Light Bleed）をあえて治さず、リジェネ系注射（Propital）で相殺しながら脱出まで走る。</li>
+                    <li>足の骨折を治さず走り続けることで「継続的なダメージ」を発生させるのも有効だ。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="content-items" class="hidden p-6">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-black/50 text-gray-400">
+                    <tr>
+                        <th class="p-3">カテゴリ</th>
+                        <th class="p-3">推奨アイテム</th>
+                        <th class="p-3">効果 / 用途</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800">
+                    <tr>
+                        <td class="p-3 font-bold text-yellow-500">注射器</td>
+                        <td class="p-3 text-white">Propital / eTG-c</td>
+                        <td class="p-3">リジェネ効果。有刺鉄線中や出血時のHP維持に必須。</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-bold text-yellow-500">医療品</td>
+                        <td class="p-3 text-white">Grizzly First Aid Kit</td>
+                        <td class="p-3">圧倒的なコストパフォーマンス。全部位の治療に。</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-bold text-yellow-500">飲食物</td>
+                        <td class="p-3 text-white">Condensed Milk</td>
+                        <td class="p-3">水分を劇的に減らす。代謝上げと並行する場合に。</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-bold text-yellow-500">ブースト</td>
+                        <td class="p-3 text-white">SJ12</td>
+                        <td class="p-3">空腹・脱水によるダメージを相殺しつつ代謝を維持。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="content-logic" class="hidden p-6 space-y-4">
+            <blockquote class="bg-gray-800 p-4 rounded text-sm italic border-l-4 border-gray-500">
+                「生命力は単なるHPの多さではない。窮地に陥った際の"出血の止まりやすさ"と"即死の回避率"だ。これを上げずして激戦区へ行くのは自殺行為だ。」
+            </blockquote>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <span><strong class="text-white">代謝(Metabolism)との相乗効果:</strong> 食べ物で脱水・空腹状態を作り、発生するダメージを回復し続けることで、VitalityとMetabolismを同時に上げることが可能。</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <span><strong class="text-white">報酬タスク:</strong> <span class="text-yellow-400 font-bold">Ambulance (+1 Level)</span>, <span class="text-yellow-400 font-bold">Crisis (+4 Levels)</span>。これらをクリア直前に使用するのが最も効率的だ。</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="mt-8">
+        <h3 class="text-lg font-bold mb-4 uppercase italic">Next Phase Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="flex items-center gap-3 bg-gray-900 p-4 rounded cursor-pointer hover:bg-gray-800 border border-gray-700">
+                <input type="checkbox" class="w-5 h-5 accent-yellow-500">
+                <span>FP-100 エアフィルターを起動したか？</span>
+            </label>
+            <label class="flex items-center gap-3 bg-gray-900 p-4 rounded cursor-pointer hover:bg-gray-800 border border-gray-700">
+                <input type="checkbox" class="w-5 h-5 accent-yellow-500">
+                <span>ポーチにGrizzlyとPropitalを詰めたか？</span>
+            </label>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-center text-xs text-gray-600">
+        <p>EFT Tactical Guide ver 1.3 | Cold-blooded Operations Support AI</p>
+    </footer>
+
+    <script>
+        function switchTab(tabId) {
+            ['method', 'items', 'logic'].forEach(id => {
+                document.getElementById('content-' + id).classList.add('hidden');
+                document.getElementById('tab-' + id).classList.remove('tab-active', 'text-white');
+                document.getElementById('tab-' + id).classList.add('text-gray-500');
+            });
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('tab-active', 'text-white');
+        }
+    </script>
+</body>
+</html>
