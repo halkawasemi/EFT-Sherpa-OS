@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFT Intel Report: Cultist Spawn Rates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains+Mono', monospace; background-color: #0d0d0d; color: #e0e0e0; }
+        .tarkov-card { background: rgba(30, 30, 30, 0.9); border-left: 4px solid #8a2b2b; transition: all 0.3s ease; }
+        .tarkov-card:hover { transform: translateY(-2px); border-left-color: #ff4d4d; background: rgba(40, 40, 40, 1); }
+        .status-active { color: #55ff55; text-shadow: 0 0 10px rgba(85, 255, 85, 0.5); }
+        .warning-text { color: #ff4d4d; }
+        .tab-active { border-bottom: 2px solid #ff4d4d; color: #ff4d4d; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-8 border-b border-gray-700 pb-4 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-bold uppercase tracking-tighter">Intel: Cultist Operations</h1>
+                <p class="text-gray-500 mt-2">これは 2026年3月14日 時点の情報だ。パッチやイベントにより数値は変動する。常に最新のWikiを確認しろ。</p>
+            </div>
+            <div class="text-right">
+                <span class="block text-xs text-gray-500">SYSTEM STATUS</span>
+                <span class="status-active font-bold">OPERATIONAL</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="tarkov-card p-4 rounded shadow-lg">
+                <h3 class="text-gray-400 text-xs mb-1"><i class="fas fa-clock mr-2"></i>TIME WINDOW</h3>
+                <p class="text-xl font-bold">22:00 - 06:00</p>
+                <p class="text-xs text-gray-500 mt-2">※夜間限定。時間はレイド開始時刻に依存する。</p>
+            </div>
+            <div class="tarkov-card p-4 rounded shadow-lg">
+                <h3 class="text-gray-400 text-xs mb-1"><i class="fas fa-skull mr-2"></i>PRIMARY TARGET</h3>
+                <p class="text-xl font-bold text-red-500">CUSTOMS / SHORELINE</p>
+                <p class="text-xs text-gray-500 mt-2">安定した出現率を誇る主要活動地域だ。</p>
+            </div>
+            <div class="tarkov-card p-4 rounded shadow-lg">
+                <h3 class="text-gray-400 text-xs mb-1"><i class="fas fa-exclamation-triangle mr-2"></i>THREAT LEVEL</h3>
+                <p class="text-xl font-bold">EXTREME</p>
+                <p class="text-xs text-gray-500 mt-2">足音が無く、毒ナイフと消音武器を使用する。</p>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <div class="flex space-x-6 border-b border-gray-800 mb-4 text-sm uppercase">
+                <button onclick="showTab('rates')" id="tab-rates" class="pb-2 tab-active transition-all">出現率・マップ</button>
+                <button onclick="showTab('behavior')" id="tab-behavior" class="pb-2 text-gray-500 hover:text-white transition-all">行動パターン・対策</button>
+            </div>
+
+            <div id="content-rates" class="space-y-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-gray-500 border-b border-gray-800">
+                                <th class="py-2 px-4">マップ</th>
+                                <th class="py-2 px-4">推定出現率</th>
+                                <th class="py-2 px-4">出現ポイント</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="border-b border-gray-900 bg-gray-900 bg-opacity-30">
+                                <td class="py-3 px-4 font-bold text-red-400">CUSTOMS</td>
+                                <td class="py-3 px-4">~20%</td>
+                                <td class="py-3 px-4">ZB-1013付近の茂み、チェックポイント間</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="py-3 px-4 font-bold text-red-400">SHORELINE</td>
+                                <td class="py-3 px-4">~20%</td>
+                                <td class="py-3 px-4">湿地帯(Swamp)、水力発電所付近の川沿い</td>
+                            </tr>
+                            <tr class="border-b border-gray-900 bg-gray-900 bg-opacity-30">
+                                <td class="py-3 px-4 font-bold text-yellow-500">WOODS</td>
+                                <td class="py-3 px-4">~15%</td>
+                                <td class="py-3 px-4">チェックポイント付近の沈んだ村、周辺の森</td>
+                            </tr>
+                            <tr class="border-b border-gray-900">
+                                <td class="py-3 px-4 font-bold text-yellow-500">STREETS</td>
+                                <td class="py-3 px-4">~5%</td>
+                                <td class="py-3 px-4">特定の裏路地、暗がりに潜伏</td>
+                            </tr>
+                            <tr class="border-b border-gray-900 bg-gray-900 bg-opacity-30">
+                                <td class="py-3 px-4 font-bold text-blue-400">FACTORY (Night)</td>
+                                <td class="py-3 px-4">~3%</td>
+                                <td class="py-3 px-4">マップ全体、特に暗い階層</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-red-900 bg-opacity-20 border border-red-900 p-4 rounded text-xs leading-relaxed">
+                    <p class="warning-text font-bold mb-1"><i class="fas fa-info-circle mr-2"></i>注意:</p>
+                    リザーブのボス100%イベント中でも、カルトの出現率は独立している可能性が高い。カルトを狙うなら従来通り <strong>Customs</strong> または <strong>Shoreline</strong> の夜間レイドを回すのが最高効率だ。
+                </div>
+            </div>
+
+            <div id="content-behavior" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-800 bg-opacity-40 p-4 rounded border border-gray-700">
+                        <h4 class="font-bold mb-2 text-white">隠密特性</h4>
+                        <ul class="text-sm space-y-2 text-gray-400">
+                            <li><i class="fas fa-shoe-prints mr-2 text-red-500"></i>サーマル（熱源映像）に映らない特別な装備。</li>
+                            <li><i class="fas fa-volume-mute mr-2 text-red-500"></i>足音がほぼ無音。背後に立たれるまで気づかない。</li>
+                            <li><i class="fas fa-vial mr-2 text-red-500"></i>毒ナイフ（Unknown Toxin）によるスリップダメージ。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-800 bg-opacity-40 p-4 rounded border border-gray-700">
+                        <h4 class="font-bold mb-2 text-white">戦闘ドクトリン</h4>
+                        <ul class="text-sm space-y-2 text-gray-400">
+                            <li><i class="fas fa-crosshairs mr-2 text-red-500"></i>こちらが先制しない限り、まずは刺突を狙ってくる。</li>
+                            <li><i class="fas fa-bolt mr-2 text-red-500"></i>一度戦闘が始まると、高精度の消音銃器で反撃。</li>
+                            <li><i class="fas fa-users mr-2 text-red-500"></i>通常、プリースト1名と護衛数名のグループで行動。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 border-t border-gray-800 pt-6">
+            <h3 class="text-lg font-bold mb-4 uppercase tracking-widest text-gray-400">Next Action Checklist</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <label class="flex items-center space-x-3 p-3 bg-gray-900 rounded cursor-pointer hover:bg-gray-800 transition-colors">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-red-600 rounded bg-black border-gray-700">
+                    <span class="text-sm">xTg-12（解毒剤）をポーチに入れておけ。</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-gray-900 rounded cursor-pointer hover:bg-gray-800 transition-colors">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-red-600 rounded bg-black border-gray-700">
+                    <span class="text-sm">サーマルは無意味だ。高性能な暗視装置(GPNVG-18)を使え。</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-gray-900 rounded cursor-pointer hover:bg-gray-800 transition-colors">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-red-600 rounded bg-black border-gray-700">
+                    <span class="text-sm">茂みに不用意に近づくな。伏せているカルトを確認しろ。</span>
+                </label>
+                <label class="flex items-center space-x-3 p-3 bg-gray-900 rounded cursor-pointer hover:bg-gray-800 transition-colors">
+                    <input type="checkbox" class="form-checkbox h-5 w-5 text-red-600 rounded bg-black border-gray-700">
+                    <span class="text-sm">フラッシュライトを頻繁に使い、隠れている影を潰せ。</span>
+                </label>
+            </div>
+        </div>
+
+        <footer class="mt-12 text-center text-xs text-gray-600">
+            <p>&copy; 2026 EFT TACTICAL GUIDE - PREPARE TO DIE</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.getElementById('content-rates').classList.add('hidden');
+            document.getElementById('content-behavior').classList.add('hidden');
+            document.getElementById('tab-rates').classList.remove('tab-active');
+            document.getElementById('tab-rates').classList.add('text-gray-500');
+            document.getElementById('tab-behavior').classList.remove('tab-active');
+            document.getElementById('tab-behavior').classList.add('text-gray-500');
+
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('tab-active');
+            document.getElementById('tab-' + tabId).classList.remove('text-gray-500');
+        }
+    </script>
+</body>
+</html>
