@@ -1,6 +1,9 @@
 // Task Database Logic
 
 Object.assign(window.app, {
+    expandedTasks: new Set(),
+    activeInputId: null,
+
     processTaskMetaData() {
         // Manual Patch for Missing API Data
         const kappaManualList = ['Grenadier', 'The Punisher - Part 6', 'Test Drive - Part 1'];
@@ -103,6 +106,7 @@ Object.assign(window.app, {
             const processRew = (rew, type) => {
                 if(!rew) return '';
                 let html = '';
+                if(rew.experience) html += `<li class="flex items-center gap-2 mb-1 text-tarkov-accent"><i class="fa-solid fa-star opacity-70"></i><span>${rew.experience} XP</span></li>`;
                 if(rew.traderStanding) rew.traderStanding.forEach(r => html += `<li>${r.trader.name}: ${r.standing}</li>`);
                 if(rew.items) rew.items.forEach(i => html += `<li class="flex items-center gap-2 mb-1"><img src="${i.item.gridImageLink || ''}" loading="lazy" class="w-5 h-5 object-contain bg-black/50 rounded" onerror="this.style.display='none'"><span>${i.item.name} x${i.count}</span></li>`);
                 
@@ -131,6 +135,55 @@ Object.assign(window.app, {
             rewardsHtml += processRew(t.startRewards, 'Start Rewards');
             rewardsHtml += processRew(t.finishRewards, 'Finish Rewards');
             
+            const renderObjectives = () => {
+                if (!t.objectives || t.objectives.length === 0) return '<li>Check wiki</li>';
+                return t.objectives.map((o, idx) => {
+                    const prog = (t.objectiveProgress && t.objectiveProgress[o.id || idx]) || { completed: false, count: 0 };
+                    
+                    // Count Fallback: If o.count is missing, try to extract from description
+                    let requiredCount = o.count || 1;
+                    if (!o.count && o.description) {
+                        const match = o.description.match(/(\d+)\s*(PMC|Scav|Operat|kill|Eliminate|hand in|x)/i) || o.description.match(/(Eliminate|Kill|Hand in)\s+(\d+)/i);
+                        if (match) {
+                            const num = parseInt(match[1]) || parseInt(match[2]);
+                            if (num) requiredCount = num;
+                        }
+                    }
+
+                    const isCompleted = prog.completed || (t.completed);
+                    
+                    return `
+                    <li class="flex items-start gap-3 p-2 rounded hover:bg-white/5 transition-colors group" onclick="event.stopPropagation()">
+                        <input type="checkbox" 
+                               class="mt-1 form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent" 
+                               onclick="event.stopPropagation(); app.toggleObjectiveProgress('${t.id}', '${o.id || idx}')" 
+                               ${isCompleted ? 'checked' : ''}>
+                        <div class="flex-1 min-w-0" onclick="event.stopPropagation()">
+                            <div class="text-sm ${isCompleted ? 'text-gray-500 line-through' : 'text-gray-300'}">${o.description}</div>
+                            ${requiredCount > 1 || (o.type === 'item' || o.type === 'playerKills' || o.type === 'bossKills' || (o.description && (o.description.includes('Eliminate') || o.description.includes('Kill')))) ? `
+                            <div class="flex items-center gap-2 mt-1" onclick="event.stopPropagation()">
+                                <div class="flex items-center bg-black/40 rounded border border-gray-700 px-1" onclick="event.stopPropagation()">
+                                    <input type="number" 
+                                           id="obj-input-${t.id}-${o.id || idx}"
+                                           class="w-12 bg-transparent border-none text-[10px] text-tarkov-accent focus:ring-0 p-0 text-center" 
+                                           value="${prog.count || 0}" 
+                                           min="0" max="${requiredCount}"
+                                           onchange="app.updateObjectiveCount('${t.id}', '${o.id || idx}', this.value)"
+                                           onfocus="app.activeInputId = this.id"
+                                           onblur="setTimeout(() => { if(app.activeInputId === 'obj-input-${t.id}-${o.id || idx}') app.activeInputId = null; }, 100);"
+                                           onclick="event.stopPropagation()">
+                                    <span class="text-[10px] text-gray-500 mr-1">/ ${requiredCount}</span>
+                                </div>
+                                <div class="h-1 flex-1 bg-gray-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-tarkov-accent/50 transition-all duration-300" style="width: ${(Math.min(prog.count || 0, requiredCount) / requiredCount) * 100}%"></div>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </li>`;
+                }).join('');
+            };
+
             let sherpaData = this.consts.sherpaIntelDB[t.name];
             let sherpaAdvice = "";
             if (sherpaData) {
@@ -154,53 +207,94 @@ Object.assign(window.app, {
 
             return `
             <div class="glass-panel rounded overflow-hidden border-l-2 ${t.completed ? 'border-tarkov-green opacity-60' : (!isAvailable ? 'border-red-900/50 opacity-50' : (t.kappaRequired ? 'border-tarkov-accent' : 'border-gray-600'))}">
-                <button class="task-accordion-header w-full text-left p-3 flex flex-col sm:flex-row sm:items-center gap-2 cursor-pointer hover:bg-white/5" aria-expanded="false" data-task-id="${t.id}" onclick="app.toggleTaskAccordion(this)">
-                    <input type="checkbox" class="form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent" onclick="event.stopPropagation(); app.toggleTaskCompleted('${t.id}')" ${t.completed ? 'checked' : ''}>
-                    <div class="flex-1">
+                <div class="task-accordion-header w-full text-left p-3 flex flex-col sm:flex-row sm:items-center gap-2 cursor-pointer hover:bg-white/5" aria-expanded="false" data-task-id="${t.id}" onclick="app.toggleTaskAccordion(this)">
+                    <div class="flex items-center gap-2 shrink-0" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="form-checkbox h-4 w-4 text-tarkov-accent rounded border-gray-600 bg-gray-700 focus:ring-tarkov-accent" onclick="event.stopPropagation(); app.toggleTaskCompleted('${t.id}')" ${t.completed ? 'checked' : ''}>
+                    </div>
+                    <div class="flex-1 min-w-0">
                         <div class="text-[10px] text-gray-500 uppercase flex items-center gap-2"><span>${t.trader?.name}</span>${t.minPlayerLevel ? '<span class="bg-gray-800 px-1 rounded">Lvl '+t.minPlayerLevel+'</span>' : ''}</div>
-                        <div class="font-bold text-sm ${t.completed ? 'text-gray-500 line-through' : 'text-gray-200'}">${t.name}</div>
+                        <div class="font-bold text-sm truncate ${t.completed ? 'text-gray-500 line-through' : 'text-gray-200'}">${t.name}</div>
                         <div class="text-xs text-gray-500"><i class="fa-solid fa-map-location-dot mr-1"></i>${t.map?.name || 'Any'}</div>
                         ${lockReason}
                     </div>
-                    <div class="flex items-center gap-3 mt-2 sm:mt-0">
+                    <div class="flex items-center gap-3 mt-2 sm:mt-0 ml-auto shrink-0">
                         ${t.kappaRequired ? '<span class="px-2 py-0.5 bg-yellow-900/40 text-tarkov-accent text-[10px] font-bold rounded border border-yellow-800/50">KAPPA</span>' : ''}
                         ${t.lightkeeperRequired ? '<span class="px-2 py-0.5 bg-blue-900/40 text-blue-400 text-[10px] font-bold rounded border border-blue-800/50">LIGHTKEEPER</span>' : ''}
-                        <i class="task-accordion-icon fa-solid fa-chevron-down transform transition-transform duration-300 ml-auto"></i>
+                        <i class="task-accordion-icon fa-solid fa-chevron-down transform transition-transform duration-300"></i>
                     </div>
-                </button>
-                <div class="task-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out bg-black/20">
+                </div>
+                <div class="task-accordion-content overflow-hidden max-h-0 transition-all duration-300 ease-in-out bg-black/20" onclick="event.stopPropagation()">
                     <div class="p-4 border-t border-gray-800 space-y-4">
-                        <div><h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Objectives</h3><ul class="list-disc pl-4 space-y-1 text-sm text-gray-300">${t.objectives?.map(o => `<li>${o.description}</li>`).join('') || '<li>Check wiki</li>'}</ul></div>
+                        <div><h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Objectives</h3><ul class="list-none space-y-2 text-sm text-gray-300">${renderObjectives()}</ul></div>
                         ${rewardsHtml}
                         <div class="bg-blue-900/10 border-l-4 border-blue-600 p-3">
                             <h3 class="text-xs font-bold text-blue-400 uppercase mb-1">Sherpa Advice</h3>
                             <div class="text-sm text-gray-300 leading-relaxed">${sherpaAdvice}</div>
                         </div>
-                        <div class="pt-2"><a href="${t.wikiLink || '#'}" target="_blank" class="text-sm text-tarkov-accent hover:underline flex items-center gap-2">Wiki Link <i class="fa-solid fa-external-link-alt"></i></a></div>
+                        <div class="pt-2" onclick="event.stopPropagation()">
+                            <a href="${t.wikiLink || '#'}" target="_blank" class="text-sm text-tarkov-accent hover:underline flex items-center gap-2" onclick="event.stopPropagation()">Wiki Link <i class="fa-solid fa-external-link-alt"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>`;
         }).join('');
+
+        // 状態の復元 (アコーディオン開閉)
+        if (this.expandedTasks && this.expandedTasks.size > 0) {
+            this.expandedTasks.forEach(id => {
+                const header = list.querySelector(`.task-accordion-header[data-task-id="${id}"]`);
+                if (header) {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.task-accordion-icon');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.classList.add('rotate-180');
+                    header.setAttribute('aria-expanded', 'true');
+                }
+            });
+        }
+
+        // 状態の復元 (入力フィールドのフォーカス)
+        if (this.activeInputId) {
+            const el = document.getElementById(this.activeInputId);
+            if (el) el.focus();
+        }
     },
 
     toggleTaskAccordion(header) {
         const content = header.nextElementSibling;
         const icon = header.querySelector('.task-accordion-icon');
+        const taskId = header.getAttribute('data-task-id');
+
         if (content.style.maxHeight) { 
             content.style.maxHeight = null; 
             icon.classList.remove('rotate-180');
             header.setAttribute('aria-expanded', 'false');
+            if (this.expandedTasks) this.expandedTasks.delete(taskId);
         } else { 
             content.style.maxHeight = content.scrollHeight + "px"; 
             icon.classList.add('rotate-180');
             header.setAttribute('aria-expanded', 'true');
+            if (!this.expandedTasks) this.expandedTasks = new Set();
+            this.expandedTasks.add(taskId);
         }
     },
 
     toggleTaskCompleted(taskId) {
         const idx = this.data.tasks.findIndex(t => t.id === taskId);
         if (idx !== -1) {
-            this.data.tasks[idx].completed = !this.data.tasks[idx].completed;
+            const t = this.data.tasks[idx];
+            t.completed = !t.completed;
+            
+            // If task is completed, mark all objectives as completed (visual sync)
+            if (t.completed && t.objectives) {
+                if (!t.objectiveProgress) t.objectiveProgress = {};
+                t.objectives.forEach((o, i) => {
+                    const id = o.id || i;
+                    if (!t.objectiveProgress[id]) t.objectiveProgress[id] = { completed: true, count: o.count || 1 };
+                    else t.objectiveProgress[id].completed = true;
+                });
+            }
+
             this.saveTaskCompletionStatus();
             this.calculateAllRequirements(); 
             this.renderTasks();
@@ -209,21 +303,77 @@ Object.assign(window.app, {
         }
     },
 
+    toggleObjectiveProgress(taskId, objId) {
+        const t = this.data.tasks.find(x => x.id === taskId);
+        if (!t) return;
+        
+        if (!t.objectiveProgress) t.objectiveProgress = {};
+        if (!t.objectiveProgress[objId]) {
+            const obj = t.objectives.find((o, i) => (o.id || i) == objId);
+            t.objectiveProgress[objId] = { completed: true, count: obj ? (obj.count || 1) : 1 };
+        } else {
+            t.objectiveProgress[objId].completed = !t.objectiveProgress[objId].completed;
+        }
+        
+        // If all objectives are completed, maybe don't auto-complete task, let user decide
+        // but we should save and re-render
+        this.saveTaskCompletionStatus();
+        this.renderTasks();
+    },
+
+    updateObjectiveCount(taskId, objId, count) {
+        const t = this.data.tasks.find(x => x.id === taskId);
+        if (!t) return;
+        
+        const nCount = parseInt(count) || 0;
+        if (!t.objectiveProgress) t.objectiveProgress = {};
+        if (!t.objectiveProgress[objId]) {
+            t.objectiveProgress[objId] = { completed: false, count: nCount };
+        } else {
+            t.objectiveProgress[objId].count = nCount;
+        }
+        
+        // Auto-check if count reached required
+        const obj = t.objectives.find((o, i) => (o.id || i) == objId);
+        if (obj && nCount >= (obj.count || 1)) {
+            t.objectiveProgress[objId].completed = true;
+        }
+
+        this.saveTaskCompletionStatus();
+        this.renderTasks();
+    },
+
     loadTaskCompletionStatus() {
         const key = this.getCompletionStorageKey();
         const s = localStorage.getItem(key);
-        if (s) { 
-            const map = JSON.parse(s); 
-            this.data.tasks.forEach(t => t.completed = map[t.id] || false); 
-        } else {
-            // Reset completion if no data for this mode
-            this.data.tasks.forEach(t => t.completed = false);
-        }
+        const map = s ? JSON.parse(s) : {};
+        
+        this.data.tasks.forEach(t => {
+            const saved = map[t.id];
+            if (saved === undefined) {
+                t.completed = false;
+                t.objectiveProgress = {};
+            } else if (typeof saved === 'boolean') {
+                // Legacy support
+                t.completed = saved;
+                t.objectiveProgress = {};
+            } else {
+                t.completed = saved.completed || false;
+                t.objectiveProgress = saved.objectives || {};
+            }
+        });
     },
     
     saveTaskCompletionStatus() {
         const map = {}; 
-        this.data.tasks.forEach(t => { if(t.completed) map[t.id] = true; });
+        this.data.tasks.forEach(t => { 
+            if (t.completed || (t.objectiveProgress && Object.keys(t.objectiveProgress).length > 0)) {
+                map[t.id] = {
+                    completed: t.completed,
+                    objectives: t.objectiveProgress || {}
+                };
+            }
+        });
         localStorage.setItem(this.getCompletionStorageKey(), JSON.stringify(map));
     },
 

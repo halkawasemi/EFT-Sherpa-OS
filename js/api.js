@@ -59,20 +59,23 @@ Object.assign(window.app, {
         try {
             const taskQuery = `{ 
                 tasks(limit: 1000, lang: ja) { 
-                    id name minPlayerLevel kappaRequired map { name } trader { name } wikiLink lightkeeperRequired
+                    id name minPlayerLevel kappaRequired experience map { name } trader { name } wikiLink lightkeeperRequired
                     taskRequirements { task { id name } }
                     traderRequirements { trader { name } level }
                     objectives { 
                         id 
                         type 
                         description 
-                        ... on TaskObjectiveItem {
-                            count
-                            foundInRaid
-                            item { id name iconLink gridImageLink }
-                        }
+                        ... on TaskObjectiveItem { count foundInRaid item { id name iconLink gridImageLink } }
+                        ... on TaskObjectiveShoot { count }
+                        ... on TaskObjectiveMark { count }
+                        ... on TaskObjectiveUseItem { count }
+                        ... on TaskObjectiveExtract { count }
                     }
-                    startRewards { traderStanding { trader { name } standing } items { item { name shortName gridImageLink } count } } 
+                    startRewards { 
+                        traderStanding { trader { name } standing } 
+                        items { item { name shortName gridImageLink } count } 
+                    } 
                     finishRewards { 
                         traderStanding { trader { name } standing } 
                         items { item { name shortName gridImageLink } count } 
@@ -103,16 +106,14 @@ Object.assign(window.app, {
             
             const taskData = await this.fetchApiData(taskQuery);
             if (taskData) {
-                if (typeof this.loadTaskCompletionStatus === 'function') {
-                    this.loadTaskCompletionStatus();
-                } else {
-                    console.warn("loadTaskCompletionStatus is not defined. Skipping task status loading.");
-                }
-
-                const savedStatus = JSON.parse(localStorage.getItem(this.getCompletionStorageKey()) || '{}');
-                
                 if (taskData.tasks) {
-                    this.data.tasks = taskData.tasks.map(t => ({...t, completed: !!savedStatus[t.id]}));
+                    this.data.tasks = taskData.tasks;
+                    // Load completion and objective progress after tasks are assigned
+                    if (typeof this.loadTaskCompletionStatus === 'function') {
+                        this.loadTaskCompletionStatus();
+                    } else {
+                        console.warn("loadTaskCompletionStatus is not defined.");
+                    }
                     this.safeUpdateText('dash-task-count', this.data.tasks.length);
                 } else {
                      console.warn("No tasks returned from API");
